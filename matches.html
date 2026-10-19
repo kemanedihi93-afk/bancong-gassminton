@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pertandingan - BANCONG GASSMINTON</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;padding:15px;font-family:Arial,sans-serif;background:#f1f5f9;color:#172033}
+.container{max-width:1000px;margin:auto}
+.card{background:white;padding:18px;margin-bottom:16px;border-radius:14px;box-shadow:0 3px 12px #0000000d}
+h1{font-size:24px}
+h2{font-size:19px}
+a{color:#166534;text-decoration:none;font-weight:bold}
+input,select,textarea,button{width:100%;padding:12px;margin:6px 0;border:1px solid #cbd5e1;border-radius:8px;font-size:15px}
+button{background:#166534;color:white;border:0;font-weight:bold;cursor:pointer}
+button:disabled{opacity:.6}
+.hapus{background:#b91c1c}
+.batal{background:#64748b}
+.tabel{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:750px}
+th,td{padding:10px;text-align:left;border-bottom:1px solid #e2e8f0}
+th{background:#f8fafc}
+.pesan{white-space:pre-wrap;margin-top:10px}
+.kecil{font-size:12px;color:#64748b}
+.kartu-skor{display:flex;gap:12px}
+.kartu-skor>div{flex:1}
+@media(max-width:550px){body{padding:10px}.kartu-skor{gap:6px}}
+</style>
+</head>
+<body>
+<div class="container">
+
+<a href="dashboard.html">← Kembali ke Dashboard</a>
+
+<div class="card">
+<h1>🏸 Pertandingan Badminton</h1>
+<p>BANCONG GASSMINTON — DATAR BANCONG</p>
+</div>
+
+<div class="card">
+<h2 id="judulForm">Tambah Pertandingan</h2>
+
+<form id="formMatch">
+<label>Turnamen (opsional)</label>
+<select id="turnamen">
+<option value="">Tanpa turnamen</option>
+</select>
+
+<label>Pemain / Pasangan 1</label>
+<input id="pemain1" maxlength="150" required placeholder="Nama pemain atau pasangan 1">
+
+<label>Pemain / Pasangan 2</label>
+<input id="pemain2" maxlength="150" required placeholder="Nama pemain atau pasangan 2">
+
+<div class="kartu-skor">
+<div>
+<label>Skor pemain 1</label>
+<input id="skor1" type="number" min="0" max="999" step="1" value="0" required>
+</div>
+<div>
+<label>Skor pemain 2</label>
+<input id="skor2" type="number" min="0" max="999" step="1" value="0" required>
+</div>
+</div>
+
+<label>Status pertandingan</label>
+<select id="status">
+<option value="belum dimulai">Belum Dimulai</option>
+<option value="berlangsung">Berlangsung</option>
+<option value="selesai">Selesai</option>
+</select>
+
+<label>Tanggal dan waktu pertandingan</label>
+<input id="tanggal" type="datetime-local" required>
+
+<button id="simpan" type="submit">Simpan Pertandingan</button>
+<button id="batal" class="batal" type="button" hidden>Batal Edit</button>
+<div id="pesan" class="pesan" role="status"></div>
+</form>
+</div>
+
+<div class="card">
+<h2>📋 Daftar Pertandingan</h2>
+<button type="button" id="muat">Muat Ulang Data</button>
+
+<div class="tabel">
+<table>
+<thead>
+<tr>
+<th>Tanggal</th>
+<th>Turnamen</th>
+<th>Pemain 1</th>
+<th>Skor</th>
+<th>Pemain 2</th>
+<th>Status</th>
+<th>Pemenang</th>
+<th>Aksi</th>
+</tr>
+</thead>
+<tbody id="daftar">
+<tr><td colspan="8">Memuat data...</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<p class="kecil">Pengelolaan pertandingan hanya untuk admin yang berwenang.</p>
+</div>
+
+<script>
+const SUPABASE_URL="https://vyrypjxuhiywvkeiewpd.supabase.co";
+const SUPABASE_KEY="sb_publishable_pRU3ZWYBomp_vQoUaI6Tzg_TbxqrYby";
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+const el=id=>document.getElementById(id);
+let pertandingan=[];
+let turnamen=[];
+let editId=null;
+
+function pesan(teks,error=false){
+ el("pesan").textContent=teks;
+ el("pesan").style.color=error?"#b91c1c":"#166534";
+}
+
+function tanggalLokal(date){
+ const d=new Date(date.getTime()-date.getTimezoneOffset()*60000);
+ return d.toISOString().slice(0,16);
+}
+
+function pemenang(m){
+ if(m.status!=="selesai")return "Belum ditentukan";
+ if(Number(m.skor_pemain_1)>Number(m.skor_pemain_2))return m.pemain_1;
+ if(Number(m.skor_pemain_2)>Number(m.skor_pemain_1))return m.pemain_2;
+ return "Skor seri";
+}
+
+async function mulai(){
+ const {data:{user},error}=await db.auth.getUser();
+
+ if(error||!user){
+  location.replace("admin.html");
+  return;
+ }
+
+ if(user.app_metadata?.role!=="admin"){
+  document.body.innerHTML="<h2>Akses ditolak</h2><p>Akun ini bukan admin. <a href='admin.html'>Kembali ke login</a></p>";
+  return;
+ }
+
+ el("tanggal").value=tanggalLokal(new Date());
+ await muatTurnamen();
+ await muatData();
+}
+
+async function muatTurnamen(){
+ const {data,error}=await db.from("tournaments")
+  .select("id,nama_turnamen")
+  .order("id",{ascending:false});
+
+ if(error){
+  pesan("Turnamen tidak dapat dimuat: "+error.message,true);
+  return;
+ }
+
+ turnamen=data||[];
+ const select=el("turnamen");
+ select.replaceChildren();
+
+ const kosong=document.createElement("option");
+ kosong.value="";
+ kosong.textContent="Tanpa turnamen";
+ select.appendChild(kosong);
+
+ turnamen.forEach(t=>{
+  const option=document.createElement("option");
+  option.value=t.id;
+  option.textContent=t.nama_turnamen;
+  select.appendChild(option);
+ });
+}
+
+async function muatData(){
+ el("daftar").innerHTML="<tr><td colspan='8'>Memuat data...</td></tr>";
+
+ const {data,error}=await db.from("matches")
+  .select("*")
+  .order("tanggal_pertandingan",{ascending:false});
+
+ if(error){
+  el("daftar").innerHTML="<tr><td colspan='8'>Data gagal dimuat.</td></tr>";
+  pesan("Gagal memuat data: "+error.message,true);
+  return;
+ }
+
+ pertandingan=data||[];
+ gambarData();
+}
+
+function gambarData(){
+ const tbody=el("daftar");
+ tbody.replaceChildren();
+
+ if(!pertandingan.length){
+  const tr=document.createElement("tr");
+  const td=document.createElement("td");
+  td.colSpan=8;
+  td.textContent="Belum ada pertandingan.";
+  tr.appendChild(td);
+  tbody.appendChild(tr);
+  return;
+ }
+
+ pertandingan.forEach(m=>{
+  const tr=document.createElement("tr");
+  const t=turnamen.find(x=>String(x.id)===String(m.tournament_id));
+  const tanggal=m.tanggal_pertandingan
+   ?new Date(m.tanggal_pertandingan).toLocaleString("id-ID")
+   :"";
+
+  [
+   tanggal,
+   t?t.nama_turnamen:"-",
+   m.pemain_1,
+   `${m.skor_pemain_1} - ${m.skor_pemain_2}`,
+   m.pemain_2,
+   m.status,
+   pemenang(m)
+  ].forEach(v=>{
+   const td=document.createElement("td");
+   td.textContent=v==null?"":String(v);
+   tr.appendChild(td);
+  });
+
+  const aksi=document.createElement("td");
+  const edit=document.createElement("button");
+  edit.type="button";
+  edit.textContent="Edit";
+  edit.addEventListener("click",()=>mulaiEdit(m.id));
+
+  const hapus=document.createElement("button");
+  hapus.type="button";
+  hapus.className="hapus";
+  hapus.textContent="Hapus";
+  hapus.addEventListener("click",()=>hapusData(m.id));
+
+  aksi.append(edit,document.createElement("br"),hapus);
+  tr.appendChild(aksi);
+  tbody.appendChild(tr);
+ });
+}
+
+el("formMatch").addEventListener("submit",async event=>{
+ event.preventDefault();
+ pesan("");
+
+ const skor1=Number(el("skor1").value);
+ const skor2=Number(el("skor2").value);
+
+ if(!Number.isInteger(skor1)||!Number.isInteger(skor2)||skor1<0||skor2<0){
+  pesan("Skor harus berupa bilangan bulat nol atau lebih.",true);
+  return;
+ }
+
+ const waktu=new Date(el("tanggal").value);
+ if(!el("tanggal").value||Number.isNaN(waktu.getTime())){
+  pesan("Tanggal pertandingan tidak valid.",true);
+  return;
+ }
+
+ const tournamentValue=el("turnamen").value;
+ const isi={
+  tournament_id:tournamentValue?Number(tournamentValue):null,
+  pemain_1:el("pemain1").value.trim(),
+  pemain_2:el("pemain2").value.trim(),
+  skor_pemain_1:skor1,
+  skor_pemain_2:skor2,
+  status:el("status").value,
+  tanggal_pertandingan:waktu.toISOString()
+ };
+
+ if(!isi.pemain_1||!isi.pemain_2){
+  pesan("Nama kedua pemain harus diisi.",true);
+  return;
+ }
+
+ if(isi.pemain_1.toLowerCase()===isi.pemain_2.toLowerCase()){
+  pesan("Nama pemain 1 dan pemain 2 tidak boleh sama.",true);
+  return;
+ }
+
+ el("simpan").disabled=true;
+
+ try{
+  let hasil;
+
+  if(editId!==null){
+   hasil=await db.from("matches").update(isi).eq("id",editId);
+  }else{
+   hasil=await db.from("matches").insert(isi);
+  }
+
+  if(hasil.error)throw hasil.error;
+
+  resetForm();
+  await muatData();
+  pesan("Pertandingan berhasil disimpan.");
+ }catch(err){
+  pesan("Gagal menyimpan: "+(err.message||"Terjadi kesalahan."),true);
+ }finally{
+  el("simpan").disabled=false;
+ }
+});
+
+function mulaiEdit(id){
+ const m=pertandingan.find(x=>String(x.id)===String(id));
+ if(!m)return;
+
+ editId=id;
+ el("turnamen").value=m.tournament_id==null?"":String(m.tournament_id);
+ el("pemain1").value=m.pemain_1||"";
+ el("pemain2").value=m.pemain_2||"";
+ el("skor1").value=m.skor_pemain_1;
+ el("skor2").value=m.skor_pemain_2;
+ el("status").value=m.status;
+ el("tanggal").value=m.tanggal_pertandingan
+  ?tanggalLokal(new Date(m.tanggal_pertandingan)):"";
+
+ el("judulForm").textContent="Edit Pertandingan";
+ el("simpan").textContent="Simpan Perubahan";
+ el("batal").hidden=false;
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+
+async function hapusData(id){
+ if(!confirm("Yakin ingin menghapus pertandingan ini?"))return;
+
+ const {error}=await db.from("matches").delete().eq("id",id);
+
+ if(error){
+  pesan("Gagal menghapus: "+error.message,true);
+  return;
+ }
+
+ await muatData();
+ pesan("Pertandingan berhasil dihapus.");
+}
+
+function resetForm(){
+ editId=null;
+ el("formMatch").reset();
+ el("tanggal").value=tanggalLokal(new Date());
+ el("skor1").value=0;
+ el("skor2").value=0;
+ el("judulForm").textContent="Tambah Pertandingan";
+ el("simpan").textContent="Simpan Pertandingan";
+ el("batal").hidden=true;
+}
+
+el("batal").addEventListener("click",resetForm);
+el("muat").addEventListener("click",async()=>{
+ await muatTurnamen();
+ await muatData();
+});
+
+mulai();
+</script>
+</body>
+</html>
