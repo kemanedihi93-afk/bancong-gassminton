@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Login Anggota | Bancong Gassminton</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;min-height:100vh;display:flex;align-items:center;
+  justify-content:center;padding:20px;background:#101820;
+  color:#fff;font-family:Arial,sans-serif
+}
+.card{
+  width:100%;max-width:400px;background:#1d2935;
+  padding:25px;border-radius:16px
+}
+h1{color:#ff4545;text-align:center}
+p{text-align:center;color:#cbd5e1}
+input,button{
+  width:100%;padding:13px;margin-top:12px;
+  border-radius:8px;font-size:16px
+}
+input{background:#101820;color:#fff;border:1px solid #465463}
+button{
+  background:#e83232;color:white;border:0;
+  font-weight:bold;cursor:pointer
+}
+a{color:#ff7777}
+#message{font-size:14px;overflow-wrap:anywhere}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>🏸 BANCONG GASSMINTON</h1>
+  <p>LOGIN ANGGOTA DATAR BANCONG</p>
+
+  <form id="loginForm">
+    <input id="email" type="email" placeholder="Alamat email"
+      autocomplete="username" required>
+    <input id="password" type="password" placeholder="Kata sandi"
+      autocomplete="current-password" required>
+    <button id="loginButton" type="submit">Masuk</button>
+  </form>
+
+  <p id="message"></p>
+  <p><a href="index.html">← Kembali ke Beranda</a></p>
+</div>
+
+<script>
+const URL='https://vyrypjxuhiywvkeiewpd.supabase.co';
+const KEY='sb_publishable_pRU3ZWYBomp_vQoUaI6Tzg_TbxqrYby';
+const db=window.supabase.createClient(URL,KEY);
+
+const form=document.getElementById('loginForm');
+const message=document.getElementById('message');
+const button=document.getElementById('loginButton');
+
+form.addEventListener('submit',async function(e){
+  e.preventDefault();
+  button.disabled=true;
+  button.textContent='Memeriksa...';
+  message.textContent='';
+
+  const email=document.getElementById('email').value.trim();
+  const password=document.getElementById('password').value;
+
+  const {data,error}=await db.auth.signInWithPassword({
+    email,password
+  });
+
+  button.disabled=false;
+  button.textContent='Masuk';
+
+  if(error){
+    message.style.color='#ff7777';
+    message.textContent='Login gagal. Periksa email dan kata sandi.';
+    return;
+  }
+
+  // Admin tetap diarahkan ke dashboard admin.
+  if(data.user?.app_metadata?.role==='admin'){
+    location.href='dashboard.html';
+  }else{
+    location.href='anggota.html';
+  }
+});
+</script>
+</body>
+</html>
