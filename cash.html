@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kas - BANCONG GASSMINTON</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 18px;
+      font-family: Arial, sans-serif;
+      background: #f1f5f9;
+      color: #172033;
+    }
+    .container { max-width: 900px; margin: auto; }
+    .header, .card {
+      background: white;
+      padding: 20px;
+      margin-bottom: 16px;
+      border-radius: 14px;
+      box-shadow: 0 3px 12px #0000000d;
+    }
+    h1 { margin-top: 0; font-size: 25px; }
+    h2 { font-size: 19px; }
+    .saldo {
+      background: #166534;
+      color: white;
+      padding: 22px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+    }
+    .saldo strong { display: block; font-size: 27px; margin-top: 10px; }
+    .ringkasan { display: flex; gap: 10px; margin-bottom: 16px; }
+    .angka {
+      flex: 1;
+      background: white;
+      padding: 14px;
+      border-radius: 12px;
+      overflow-wrap: anywhere;
+    }
+    .angka strong { display: block; margin-top: 8px; }
+    input, select, textarea, button {
+      width: 100%;
+      padding: 12px;
+      margin: 6px 0;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 15px;
+    }
+    button {
+      background: #166534;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .hapus { background: #b91c1c; }
+    .kembali {
+      display: inline-block;
+      color: #166534;
+      text-decoration: none;
+      font-weight: bold;
+      margin-bottom: 14px;
+    }
+    .pesan { white-space: pre-wrap; margin-top: 10px; }
+    .tabel { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; min-width: 600px; }
+    th, td { padding: 10px; border-bottom: 1px solid #e2e8f0; text-align: left; }
+    th { background: #f8fafc; }
+    .kecil { font-size: 12px; color: #64748b; }
+    @media (max-width: 500px) {
+      body { padding: 10px; }
+      .ringkasan { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <a class="kembali" href="dashboard.html">← Kembali ke Dashboard</a>
+
+  <div class="header">
+    <h1>💰 Kas BANCONG GASSMINTON</h1>
+    <p>Catatan uang masuk dan keluar badminton Datar Bancong.</p>
+  </div>
+
+  <div class="saldo">
+    Saldo Kas Saat Ini
+    <strong id="saldo">Rp0</strong>
+  </div>
+
+  <div class="ringkasan">
+    <div class="angka">Total Uang Masuk<strong id="masuk">Rp0</strong></div>
+    <div class="angka">Total Uang Keluar<strong id="keluar">Rp0</strong></div>
+  </div>
+
+  <div class="card">
+    <h2 id="judulForm">Tambah Transaksi</h2>
+    <form id="formKas">
+      <label>Jenis transaksi</label>
+      <select id="jenis" required>
+        <option value="masuk">Uang Masuk</option>
+        <option value="keluar">Uang Keluar</option>
+      </select>
+
+      <label>Jumlah (rupiah)</label>
+      <input id="jumlah" type="number" min="1" step="1" required placeholder="Contoh: 50000">
+
+      <label>Tanggal</label>
+      <input id="tanggal" type="date" required>
+
+      <label>Keterangan</label>
+      <textarea id="keterangan" rows="3" placeholder="Contoh: Iuran badminton" required></textarea>
+
+      <label>Dicatat oleh</label>
+      <input id="pencatat" type="text" maxlength="100" placeholder="Nama pencatat" required>
+
+      <button id="simpan" type="submit">Simpan Transaksi</button>
+      <button id="batal" type="button" hidden>Batal Edit</button>
+      <div id="pesan" class="pesan" role="status"></div>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>📋 Riwayat Transaksi</h2>
+    <button type="button" id="muat">Muat Ulang Data</button>
+    <div class="tabel">
+      <table>
+        <thead>
+          <tr>
+            <th>Tanggal</th>
+            <th>Jenis</th>
+            <th>Jumlah</th>
+            <th>Keterangan</th>
+            <th>Pencatat</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="daftar">
+          <tr><td colspan="6">Memuat data...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <p class="kecil">Data kas hanya dapat dikelola oleh admin yang memiliki izin.</p>
+</div>
+
+<script>
+const SUPABASE_URL = "https://vyrypjxuhiywvkeiewpd.supabase.co";
+const SUPABASE_KEY = "sb_publishable_pRU3ZWYBomp_vQoUaI6Tzg_TbxqrYby";
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let transaksi = [];
+let editId = null;
+
+const el = id => document.getElementById(id);
+const rupiah = n => new Intl.NumberFormat("id-ID", {
+  style: "currency", currency: "IDR", maximumFractionDigits: 0
+}).format(Number(n) || 0);
+
+function teksAman(value) {
+  const span = document.createElement("span");
+  span.textContent = value == null ? "" : String(value);
+  return span;
+}
+
+function pesan(teks, error = false) {
+  el("pesan").textContent = teks;
+  el("pesan").style.color = error ? "#b91c1c" : "#166534";
+}
+
+function tanggalHariIni() {
+  const now = new Date();
+  const lokal = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+  return lokal.toISOString().slice(0, 10);
+}
+
+async function mulai() {
+  const { data: { user }, error } = await db.auth.getUser();
+
+  if (error || !user) {
+    location.replace("admin.html");
+    return;
+  }
+
+  if (user.app_metadata?.role !== "admin") {
+    document.body.innerHTML =
+      "<h2>Akses ditolak</h2><p>Akun ini bukan admin. <a href='admin.html'>Kembali ke login</a></p>";
+    return;
+  }
+
+  el("tanggal").value = tanggalHariIni();
+  await muatData();
+}
+
+async function muatData() {
+  el("daftar").innerHTML = "<tr><td colspan='6'>Memuat data...</td></tr>";
+
+  const { data, error } = await db
+    .from("cash_transactions")
+    .select("*")
+    .order("tanggal", { ascending: false })
+    .order("id", { ascending: false });
+
+  if (error) {
+    el("daftar").innerHTML = "<tr><td colspan='6'>Data gagal dimuat.</td></tr>";
+    pesan("Gagal memuat data: " + error.message, true);
+    return;
+  }
+
+  transaksi = data || [];
+  gambarData();
+  pesan("");
+}
+
+function gambarData() {
+  let totalMasuk = 0;
+  let totalKeluar = 0;
+
+  transaksi.forEach(t => {
+    if (t.jenis === "masuk") totalMasuk += Number(t.jumlah) || 0;
+    if (t.jenis === "keluar") totalKeluar += Number(t.jumlah) || 0;
+  });
+
+  el("masuk").textContent = rupiah(totalMasuk);
+  el("keluar").textContent = rupiah(totalKeluar);
+  el("saldo").textContent = rupiah(totalMasuk - totalKeluar);
+
+  const tbody = el("daftar");
+  tbody.replaceChildren();
+
+  if (!transaksi.length) {
+    const tr = document.createElement("tr");
+    const td = document.createElement("td");
+    td.colSpan = 6;
+    td.textContent = "Belum ada transaksi kas.";
+    tr.appendChild(td);
+    tbody.appendChild(tr);
+    return;
+  }
+
+  transaksi.forEach(t => {
+    const tr = document.createElement("tr");
+    const nilai = [
+      t.tanggal,
+      t.jenis === "masuk" ? "Uang Masuk" : "Uang Keluar",
+      rupiah(t.jumlah),
+      t.keterangan,
+      t.dicatat_oleh
+    ];
+
+    nilai.forEach(v => {
+      const td = document.createElement("td");
+      td.textContent = v == null ? "" : String(v);
+      tr.appendChild(td);
+    });
+
+    const aksi = document.createElement("td");
+    const edit = document.createElement("button");
+    edit.textContent = "Edit";
+    edit.type = "button";
+    edit.addEventListener("click", () => mulaiEdit(t.id));
+
+    const hapus = document.createElement("button");
+    hapus.textContent = "Hapus";
+    hapus.type = "button";
+    hapus.className = "hapus";
+    hapus.addEventListener("click", () => hapusData(t.id));
+
+    aksi.append(edit, hapus);
+    tr.appendChild(aksi);
+    tbody.appendChild(tr);
+  });
+}
+
+el("formKas").addEventListener("submit", async event => {
+  event.preventDefault();
+  pesan("");
+
+  const jumlah = Number(el("jumlah").value);
+  if (!Number.isSafeInteger(jumlah) || jumlah <= 0) {
+    pesan("Jumlah harus berupa bilangan rupiah positif.", true);
+    return;
+  }
+
+  const isi = {
+    jenis: el("jenis").value,
+    jumlah,
+    tanggal: el("tanggal").value,
+    keterangan: el("keterangan").value.trim(),
+    dicatat_oleh: el("pencatat").value.trim()
+  };
+
+  if (!isi.tanggal || !isi.keterangan || !isi.dicatat_oleh) {
+    pesan("Lengkapi semua kolom terlebih dahulu.", true);
+    return;
+  }
+
+  el("simpan").disabled = true;
+
+  try {
+    let hasil;
+    if (editId !== null) {
+      hasil = await db.from("cash_transactions").update(isi).eq("id", editId);
+    } else {
+      hasil = await db.from("cash_transactions").insert(isi);
+    }
+
+    if (hasil.error) throw hasil.error;
+
+    resetForm();
+    await muatData();
+    pesan("Transaksi berhasil disimpan.");
+  } catch (err) {
+    pesan("Gagal menyimpan: " + (err.message || "Terjadi kesalahan."), true);
+  } finally {
+    el("simpan").disabled = false;
+  }
+});
+
+function mulaiEdit(id) {
+  const t = transaksi.find(x => String(x.id) === String(id));
+  if (!t) return;
+
+  editId = id;
+  el("jenis").value = t.jenis;
+  el("jumlah").value = t.jumlah;
+  el("tanggal").value = t.tanggal;
+  el("keterangan").value = t.keterangan || "";
+  el("pencatat").value = t.dicatat_oleh || "";
+  el("judulForm").textContent = "Edit Transaksi";
+  el("simpan").textContent = "Simpan Perubahan";
+  el("batal").hidden = false;
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+async function hapusData(id) {
+  const t = transaksi.find(x => String(x.id) === String(id));
+  if (!t) return;
+
+  if (!confirm("Hapus transaksi ini? Tindakan ini tidak dapat dibatalkan.")) return;
+
+  const { error } = await db.from("cash_transactions").delete().eq("id", id);
+
+  if (error) {
+    pesan("Gagal menghapus: " + error.message, true);
+    return;
+  }
+
+  await muatData();
+  pesan("Transaksi berhasil dihapus.");
+}
+
+function resetForm() {
+  editId = null;
+  el("formKas").reset();
+  el("tanggal").value = tanggalHariIni();
+  el("judulForm").textContent = "Tambah Transaksi";
+  el("simpan").textContent = "Simpan Transaksi";
+  el("batal").hidden = true;
+}
+
+el("batal").addEventListener("click", resetForm);
+el("muat").addEventListener("click", muatData);
+
+mulai();
+</script>
+</body>
+</html>
