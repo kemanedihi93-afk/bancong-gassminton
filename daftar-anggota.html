@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Daftar Anggota - BANCONG GASSMINTON</title>
+  <title>Pendaftaran Anggota - BANCONG GASSMINTON</title>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -21,37 +21,35 @@
       padding: 20px;
       font-family: Arial, sans-serif;
       background: linear-gradient(135deg, #101820, #253746);
-      color: #fff;
     }
 
     .card {
       width: 100%;
       max-width: 420px;
       padding: 28px;
-      background: #fff;
-      color: #222;
+      background: white;
       border-radius: 18px;
       box-shadow: 0 10px 35px #0005;
     }
 
     h1 {
-      margin: 0 0 8px;
       text-align: center;
       color: #087f5b;
-      font-size: 25px;
+      font-size: 24px;
     }
 
     .subtitle {
       text-align: center;
       color: #666;
+      line-height: 1.6;
       margin-bottom: 25px;
-      line-height: 1.5;
     }
 
     label {
       display: block;
-      margin: 14px 0 7px;
+      margin: 16px 0 7px;
       font-weight: bold;
+      color: #333;
     }
 
     input {
@@ -64,8 +62,8 @@
 
     button {
       width: 100%;
-      margin-top: 22px;
       padding: 14px;
+      margin-top: 22px;
       border: none;
       border-radius: 9px;
       background: #087f5b;
@@ -77,7 +75,6 @@
 
     button:disabled {
       opacity: 0.6;
-      cursor: not-allowed;
     }
 
     #pesan {
@@ -89,21 +86,21 @@
       overflow-wrap: anywhere;
     }
 
-    .sukses {
-      display: block !important;
+    #pesan.sukses {
+      display: block;
       background: #d8f3dc;
       color: #1b4332;
     }
 
-    .gagal {
-      display: block !important;
+    #pesan.gagal {
+      display: block;
       background: #ffe0e0;
       color: #9b2226;
     }
 
-    .link {
-      margin-top: 20px;
+    .kembali {
       text-align: center;
+      margin-top: 20px;
       font-size: 14px;
     }
 
@@ -120,7 +117,8 @@
 
     <p class="subtitle">
       BANCONG GASSMINTON<br>
-      DATAR BANCONG
+      DATAR BANCONG<br>
+      <small>Isi data dengan benar untuk mendaftar.</small>
     </p>
 
     <form id="formDaftar">
@@ -129,28 +127,20 @@
         id="nama"
         type="text"
         maxlength="100"
-        required
         autocomplete="name"
         placeholder="Masukkan nama lengkap"
+        required
       >
 
-      <label for="email">Email aktif</label>
+      <label for="whatsapp">Nomor WhatsApp</label>
       <input
-        id="email"
-        type="email"
+        id="whatsapp"
+        type="tel"
+        maxlength="20"
+        inputmode="tel"
+        autocomplete="tel"
+        placeholder="Contoh: 081234567890"
         required
-        autocomplete="email"
-        placeholder="Masukkan email"
-      >
-
-      <label for="password">Kata sandi</label>
-      <input
-        id="password"
-        type="password"
-        minlength="8"
-        required
-        autocomplete="new-password"
-        placeholder="Minimal 8 karakter"
       >
 
       <button id="tombolDaftar" type="submit">
@@ -160,9 +150,8 @@
 
     <div id="pesan" role="status" aria-live="polite"></div>
 
-    <div class="link">
-      Sudah punya akun?
-      <a href="anggota-login.html">Login di sini</a>
+    <div class="kembali">
+      <a href="index.html">Kembali ke halaman utama</a>
     </div>
   </main>
 
@@ -193,75 +182,60 @@
       const nama = document.getElementById("nama")
         .value.trim();
 
-      const email = document.getElementById("email")
+      const whatsapp = document.getElementById("whatsapp")
         .value.trim();
 
-      const password = document.getElementById("password")
-        .value;
-
-      if (!nama || !email || password.length < 8) {
+      if (nama.length < 2 || nama.length > 100) {
         tampilkanPesan(
-          "Periksa kembali nama, email, dan kata sandi. Kata sandi minimal 8 karakter.",
+          "Nama harus terdiri dari 2 sampai 100 karakter.",
+          "gagal"
+        );
+        return;
+      }
+
+      const digitWhatsapp = whatsapp.replace(/\D/g, "");
+
+      if (
+        digitWhatsapp.length < 8 ||
+        digitWhatsapp.length > 15 ||
+        !/^[0-9+()\-\s]+$/.test(whatsapp)
+      ) {
+        tampilkanPesan(
+          "Periksa kembali nomor WhatsApp yang kamu masukkan.",
           "gagal"
         );
         return;
       }
 
       tombol.disabled = true;
-      tombol.textContent = "Memproses...";
+      tombol.textContent = "Mengirim pendaftaran...";
       pesan.className = "";
-      pesan.textContent = "";
 
       try {
-        const { data, error } = await db.auth.signUp({
-          email: email,
-          password: password,
-          options: {
-            data: {
-              nama: nama
-            }
-          }
-        });
+        const { error } = await db
+          .from("member_registrations")
+          .insert({
+            nama: nama,
+            nomor_whatsapp: whatsapp,
+            status: "pending"
+          });
 
-        if (error) throw error;
-
-        // Jika pendaftaran langsung menghasilkan sesi,
-        // buat profil dengan status pending.
-        if (data.session && data.user) {
-          const { error: profilError } = await db
-            .from("member_profiles")
-            .insert({
-              user_id: data.user.id,
-              nama: nama,
-              status: "pending"
-            });
-
-          if (profilError) {
-            tampilkanPesan(
-              "Akun berhasil dibuat, tetapi profil belum tersimpan. Hubungi admin untuk menyelesaikan pendaftaran.",
-              "gagal"
-            );
-            return;
-          }
-
-          await db.auth.signOut();
-
-          tampilkanPesan(
-            "Pendaftaran berhasil! Akun menunggu persetujuan admin. Silakan login setelah admin menyetujui akun.",
-            "sukses"
-          );
-        } else {
-          tampilkanPesan(
-            "Pendaftaran diterima. Periksa email untuk konfirmasi jika diminta. Setelah itu, admin perlu memastikan profil pendaftaran tercatat dan menyetujui akun sebelum akses diberikan.",
-            "sukses"
-          );
+        if (error) {
+          throw error;
         }
+
+        tampilkanPesan(
+          "Pendaftaran berhasil dikirim! Status kamu MENUNGGU PERSETUJUAN ADMIN. Data anggota belum aktif sampai admin menyetujuinya.",
+          "sukses"
+        );
 
         form.reset();
 
       } catch (error) {
+        console.error("Kesalahan pendaftaran:", error);
+
         tampilkanPesan(
-          "Pendaftaran gagal: " + error.message,
+          "Pendaftaran belum berhasil disimpan. Silakan coba lagi nanti.",
           "gagal"
         );
       } finally {
