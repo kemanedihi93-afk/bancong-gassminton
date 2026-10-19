@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Admin | BANCONG GASSMINTON</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+      color: white;
+      background: linear-gradient(135deg, #090909, #252525);
+    }
+
+    .card {
+      width: 100%;
+      max-width: 390px;
+      padding: 30px 24px;
+      background: #151515;
+      border: 1px solid #444;
+      border-top: 4px solid #e50914;
+      border-radius: 16px;
+      box-shadow: 0 12px 35px #0008;
+    }
+
+    h1 {
+      margin: 0;
+      text-align: center;
+      font-size: 25px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #bbb;
+      font-size: 13px;
+      margin: 10px 0 25px;
+    }
+
+    label {
+      display: block;
+      margin: 15px 0 7px;
+      font-size: 14px;
+    }
+
+    input {
+      width: 100%;
+      padding: 13px;
+      border: 1px solid #555;
+      border-radius: 8px;
+      background: #242424;
+      color: white;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 22px;
+      padding: 14px;
+      border: none;
+      border-radius: 8px;
+      background: #e50914;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+    }
+
+    #pesan {
+      margin-top: 18px;
+      text-align: center;
+      font-size: 14px;
+      overflow-wrap: anywhere;
+    }
+
+    .kembali {
+      display: block;
+      margin-top: 20px;
+      text-align: center;
+      color: #ddd;
+      font-size: 14px;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="card">
+    <h1>🏸 BANCONG GASSMINTON</h1>
+    <p class="subtitle">HALAMAN LOGIN ADMIN</p>
+
+    <form id="formLogin">
+      <label for="email">Email admin</label>
+      <input
+        id="email"
+        type="email"
+        autocomplete="username"
+        placeholder="Masukkan email admin"
+        required
+      >
+
+      <label for="password">Kata sandi</label>
+      <input
+        id="password"
+        type="password"
+        autocomplete="current-password"
+        placeholder="Masukkan kata sandi"
+        required
+      >
+
+      <button id="tombolLogin" type="submit">
+        LOGIN ADMIN
+      </button>
+    </form>
+
+    <p id="pesan" role="status"></p>
+
+    <a class="kembali" href="index.html">← Kembali ke halaman utama</a>
+  </main>
+
+  <script>
+    const SUPABASE_URL =
+      "https://vyrypjxuhiywvkeiewpd.supabase.co";
+
+    const SUPABASE_KEY =
+      "sb_publishable_pRU3ZWYBomp_vQoUaI6Tzg_TbxqrYby";
+
+    const db = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
+
+    const form = document.getElementById("formLogin");
+    const pesan = document.getElementById("pesan");
+    const tombol = document.getElementById("tombolLogin");
+
+    form.addEventListener("submit", async function (event) {
+      event.preventDefault();
+
+      pesan.textContent = "";
+      tombol.disabled = true;
+      tombol.textContent = "Memeriksa...";
+
+      try {
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value;
+
+        const { data, error } = await db.auth.signInWithPassword({
+          email,
+          password
+        });
+
+        if (error) throw error;
+
+        const { data: profil, error: profilError } =
+          await db.auth.getUser();
+
+        if (profilError || !profil.user) {
+          await db.auth.signOut();
+          throw new Error("Tidak dapat memeriksa akun.");
+        }
+
+        if (profil.user.app_metadata?.role !== "admin") {
+          await db.auth.signOut();
+          throw new Error("Akun ini tidak memiliki akses admin.");
+        }
+
+        pesan.textContent = "Login berhasil! Membuka dashboard...";
+
+        window.location.href = "dashboard.html";
+      } catch (error) {
+        pesan.textContent = error.message || "Login gagal.";
+      } finally {
+        tombol.disabled = false;
+        tombol.textContent = "LOGIN ADMIN";
+      }
+    });
+  </script>
+</body>
+</html>
