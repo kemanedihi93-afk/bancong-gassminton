@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jadwal | Bancong Gassminton</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;padding:18px;background:#101820;color:white;font-family:Arial,sans-serif}
+.container{max-width:850px;margin:auto}
+h1{color:#ff4545}
+.card{background:#1d2935;padding:18px;border-radius:12px;margin-bottom:18px}
+input,textarea,button{width:100%;padding:12px;margin:7px 0;border-radius:8px;border:1px solid #465463;font-size:15px}
+input,textarea{background:#101820;color:white}
+button{background:#e83232;color:white;border:0;font-weight:bold;cursor:pointer}
+.secondary{background:#34495e}
+.danger{background:#a61e1e}
+.item{border:1px solid #465463;padding:14px;border-radius:10px;margin:12px 0}
+.item h3{color:#ff7474;margin-top:0}
+.actions{display:flex;gap:8px}
+.actions button{flex:1}
+.hidden{display:none}
+a{color:#ff7777}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>🏸 BANCONG GASSMINTON</h1>
+<p>DATAR BANCONG • MANAJEMEN JADWAL</p>
+
+<div id="loading" class="card">Memeriksa login admin...</div>
+
+<div id="app" class="hidden">
+<div class="card">
+<h2 id="formTitle">➕ Tambah Jadwal</h2>
+
+<form id="form">
+<input type="hidden" id="editId">
+
+<label>Judul kegiatan *</label>
+<input id="judul" required placeholder="Contoh: Latihan Badminton">
+
+<label>Tanggal *</label>
+<input id="tanggal" type="date" required>
+
+<label>Waktu *</label>
+<input id="waktu" type="time" required>
+
+<label>Lokasi</label>
+<input id="lokasi" placeholder="Lokasi kegiatan">
+
+<label>Keterangan</label>
+<textarea id="keterangan" rows="3" placeholder="Informasi tambahan"></textarea>
+
+<button type="submit" id="saveBtn">Simpan Jadwal</button>
+<button type="button" id="cancelBtn" class="secondary hidden">Batal Edit</button>
+</form>
+<p id="message"></p>
+</div>
+
+<div class="card">
+<h2>📅 Daftar Jadwal</h2>
+<button class="secondary" type="button" onclick="loadSchedules()">🔄 Muat Ulang</button>
+<div id="list">Memuat jadwal...</div>
+</div>
+
+<button class="secondary" onclick="location.href='dashboard.html'">⬅ Kembali ke Dashboard</button>
+</div>
+</div>
+
+<script>
+const SUPABASE_URL='https://vyrypjxuhiywvkeiewpd.supabase.co';
+const SUPABASE_KEY='sb_publishable_pRU3ZWYBomp_vQoUaI6Tzg_TbxqrYby';
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const $=id=>document.getElementById(id);
+let editing=false;
+
+function message(text,good=false){
+  $('message').textContent=text;
+  $('message').style.color=good?'#9ee7ae':'#ff7777';
+}
+
+async function init(){
+  const {data:{session},error}=await db.auth.getSession();
+
+  if(error||!session){
+    $('loading').innerHTML='Silakan login admin terlebih dahulu. <a href="admin.html">Login Admin</a>';
+    return;
+  }
+
+  const {data:{user},error:userError}=await db.auth.getUser();
+
+  if(userError||user?.app_metadata?.role!=='admin'){
+    $('loading').textContent='Akun ini tidak memiliki akses admin.';
+    return;
+  }
+
+  $('loading').classList.add('hidden');
+  $('app').classList.remove('hidden');
+  await loadSchedules();
+}
+
+async function loadSchedules(){
+  $('list').textContent='Memuat jadwal...';
+
+  const {data,error}=await db.from('schedules')
+    .select('*')
+    .order('tanggal',{ascending:true})
+    .order('waktu',{ascending:true});
+
+  if(error){
+    $('list').textContent='Gagal memuat jadwal: '+error.message;
+    return;
+  }
+
+  $('list').innerHTML='';
+
+  if(!data||data.length===0){
+    $('list').textContent='Belum ada jadwal kegiatan.';
+    return;
+  }
+
+  data.forEach(s=>{
+    const item=document.createElement('div');
+    item.className='item';
+
+    const title=document.createElement('h3');
+    title.textContent='📌 '+s.judul;
+    item.appendChild(title);
+
+    const details=document.createElement('p');
+    details.style.whiteSpace='pre-line';
+    details.textContent=
+      '📅 Tanggal: '+(s.tanggal||'-')+
+      '\n🕒 Waktu: '+(s.waktu?s.waktu.slice(0,5):'-')+
+      '\n📍 Lokasi: '+(s.lokasi||'-')+
+      '\nKeterangan: '+(s.keterangan||'-');
+    item.appendChild(details);
+
+    const actions=document.createElement('div');
+    actions.className='actions';
+
+    const edit=document.createElement('button');
+    edit.textContent='✏️ Edit';
+    edit.onclick=()=>editSchedule(s);
+    actions.appendChild(edit);
+
+    const del=document.createElement('button');
+    del.textContent='🗑️ Hapus';
+    del.className='danger';
+    del.onclick=()=>deleteSchedule(s.id,s.judul);
+    actions.appendChild(del);
+
+    item.appendChild(actions);
+    $('list').appendChild(item);
+  });
+}
+
+$('form').addEventListener('submit',async e=>{
+  e.preventDefault();
+
+  const record={
+    judul:$('judul').value.trim(),
+    tanggal:$('tanggal').value,
+    waktu:$('waktu').value,
+    lokasi:$('lokasi').value.trim()||null,
+    keterangan:$('keterangan').value.trim()||null
+  };
+
+  $('saveBtn').disabled=true;
+  $('saveBtn').textContent='Menyimpan...';
+
+  let result;
+
+  if(editing){
+    result=await db.from('schedules')
+      .update(record).eq('id',$('editId').value);
+  }else{
+    result=await db.from('schedules').insert([record]);
+  }
+
+  $('saveBtn').disabled=false;
+  $('saveBtn').textContent=editing?'Simpan Perubahan':'Simpan Jadwal';
+
+  if(result.error){
+    message('Gagal menyimpan: '+result.error.message);
+    return;
+  }
+
+  message(editing?'Jadwal berhasil diperbarui!':'Jadwal berhasil ditambahkan!',true);
+  resetForm();
+  await loadSchedules();
+});
+
+function editSchedule(s){
+  editing=true;
+  $('editId').value=s.id;
+  $('judul').value=s.judul||'';
+  $('tanggal').value=s.tanggal||'';
+  $('waktu').value=s.waktu?s.waktu.slice(0,5):'';
+  $('lokasi').value=s.lokasi||'';
+  $('keterangan').value=s.keterangan||'';
+  $('formTitle').textContent='✏️ Edit Jadwal';
+  $('saveBtn').textContent='Simpan Perubahan';
+  $('cancelBtn').classList.remove('hidden');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function resetForm(){
+  editing=false;
+  $('form').reset();
+  $('editId').value='';
+  $('formTitle').textContent='➕ Tambah Jadwal';
+  $('saveBtn').textContent='Simpan Jadwal';
+  $('cancelBtn').classList.add('hidden');
+}
+
+$('cancelBtn').addEventListener('click',resetForm);
+
+async function deleteSchedule(id,judul){
+  if(!confirm('Yakin ingin menghapus jadwal "'+judul+'"?'))return;
+
+  const {error}=await db.from('schedules').delete().eq('id',id);
+
+  if(error){
+    alert('Gagal menghapus: '+error.message);
+    return;
+  }
+
+  alert('Jadwal berhasil dihapus.');
+  await loadSchedules();
+}
+
+init();
+</script>
+</body>
+</html>
