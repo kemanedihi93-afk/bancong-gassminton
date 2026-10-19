@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#071b16">
+  <title>BANCONG GASSMINTON</title>
+  <style>
+    :root{--bg:#071b16;--panel:#102a22;--panel2:#14362b;--lime:#c7f36b;--text:#f4f7ee;--muted:#b4c7bc;--line:#285044;--orange:#ffb45e}
+    *{box-sizing:border-box} body{margin:0;background:radial-gradient(ellipse at top right,#173e2d 0,transparent 45%),var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.5}
+    .wrap{max-width:1050px;margin:auto;padding:22px 16px 48px}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:28px}.brand{display:flex;align-items:center;gap:11px;font-weight:900;letter-spacing:.4px}.logo{width:44px;height:44px;border-radius:14px;background:var(--lime);color:#10251a;display:grid;place-items:center;font-size:23px}
+    .pill{border:1px solid var(--line);border-radius:99px;padding:7px 11px;color:var(--muted);font-size:12px}
+    .hero{padding:32px 24px;border:1px solid var(--line);border-radius:25px;background:linear-gradient(130deg,rgba(24,66,48,.95),rgba(13,38,30,.92));position:relative;overflow:hidden}
+    .eyebrow{color:var(--lime);font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase}.hero h1{font-size:clamp(32px,7vw,58px);line-height:1.03;max-width:650px;margin:12px 0}.hero p{color:var(--muted);max-width:560px;margin:14px 0 22px}.hero-mark{position:absolute;right:18px;bottom:-50px;font-size:190px;opacity:.08;pointer-events:none}
+    .btn{display:inline-block;border:0;border-radius:12px;background:var(--lime);color:#132419;font-weight:850;text-decoration:none;padding:12px 17px;cursor:pointer}.btn.secondary{background:transparent;color:var(--text);border:1px solid var(--line)}
+    .section{margin-top:30px}.section-head{display:flex;align-items:end;justify-content:space-between;gap:12px;margin-bottom:14px}.section h2{margin:0;font-size:23px}.section-head p{margin:4px 0 0;color:var(--muted);font-size:13px}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.card{background:var(--panel);border:1px solid var(--line);border-radius:17px;padding:17px}.card h3{margin:8px 0 5px;font-size:18px}.card p{margin:4px 0;color:var(--muted);font-size:14px}.date{display:inline-block;border-radius:9px;background:var(--panel2);color:var(--lime);padding:6px 9px;font-size:12px;font-weight:800}.empty{grid-column:1/-1;color:var(--muted);padding:18px;border:1px dashed var(--line);border-radius:14px}
+    .status{font-size:12px;color:var(--muted);margin-top:12px}.notice{margin-top:24px;padding:14px 16px;border-radius:14px;background:#142c24;border:1px solid var(--line);color:var(--muted);font-size:12px}.footer{margin-top:30px;color:#81988c;text-align:center;font-size:12px}
+    @media(max-width:620px){.grid{grid-template-columns:1fr}.hero{padding:27px 19px}.pill{display:none}.top{margin-bottom:20px}.hero-mark{right:-20px;font-size:145px}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header class="top">
+      <div class="brand"><div class="logo">🏸</div><div>BANCONG<br>GASSMINTON</div></div>
+      <div class="pill">KOMUNITAS BADMINTON</div>
+    </header>
+
+    <section class="hero">
+      <div class="hero-mark">🏸</div>
+      <div class="eyebrow">Main bareng • Sehat bareng</div>
+      <h1>Gaskeun ke lapangan!</h1>
+      <p>Tempat informasi jadwal latihan dan turnamen komunitas BANCONG GASSMINTON. Sampai jumpa di lapangan!</p>
+      <a class="btn" href="#jadwal">Lihat Jadwal Latihan ↓</a>
+    </section>
+
+    <section class="section" id="jadwal">
+      <div class="section-head"><div><h2>📅 Jadwal Latihan</h2><p>Jadwal terbaru dari database komunitas.</p></div></div>
+      <div id="schedules" class="grid"><div class="empty">Sedang memuat jadwal…</div></div>
+      <div id="schedule-status" class="status" aria-live="polite"></div>
+    </section>
+
+    <section class="section" id="turnamen">
+      <div class="section-head"><div><h2>🏆 Turnamen</h2><p>Informasi pertandingan komunitas.</p></div></div>
+      <div id="tournaments" class="grid"><div class="empty">Sedang memuat turnamen…</div></div>
+      <div id="tournament-status" class="status" aria-live="polite"></div>
+    </section>
+
+    <div class="notice">Informasi jadwal dan turnamen ditampilkan dari Supabase. Data anggota, pembayaran arisan, dan kas tidak ditampilkan di halaman publik ini.</div>
+    <footer class="footer">© <span id="year"></span> BANCONG GASSMINTON • Sportif, kompak, gaskeun!</footer>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // Project URL dan publishable key milik proyek Supabase kamu.
+    const SUPABASE_URL = 'https://vyrypjxuhiywvkeiewpd.supabase.co';
+    const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_pRU3ZWYBomp_vQoUaI6Tzg_TbxqrYby';
+
+    const schedulesEl = document.getElementById('schedules');
+    const tournamentsEl = document.getElementById('tournaments');
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    function safe(value) {
+      return String(value ?? '').replace(/[&<>"']/g, ch => ({
+        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+      }[ch]));
+    }
+    function dateID(value) {
+      if (!value) return 'Tanggal belum ditentukan';
+      const d = new Date(value + (String(value).length === 10 ? 'T00:00:00' : ''));
+      return Number.isNaN(d.getTime()) ? safe(value) : new Intl.DateTimeFormat('id-ID',{day:'numeric',month:'long',year:'numeric'}).format(d);
+    }
+    function showError(el, message) {
+      el.innerHTML = `<div class="empty">${safe(message)}</div>`;
+    }
+
+    async function loadSchedules(client) {
+      const status = document.getElementById('schedule-status');
+      try {
+        const { data, error } = await client.from('schedules')
+          .select('id,judul,tanggal,waktu,lokasi,keterangan')
+          .order('tanggal', { ascending: true }).limit(50);
+        if (error) throw error;
+        if (!data || data.length === 0) {
+          showError(schedulesEl, 'Belum ada jadwal latihan yang tersedia.');
+          return;
+        }
+        schedulesEl.innerHTML = data.map(item => {
+          const waktu = item.waktu ? String(item.waktu).slice(0,5) : '';
+          return `<article class="card">
+            <span class="date">${safe(dateID(item.tanggal))}</span>
+            <h3>${safe(item.judul || 'Latihan badminton')}</h3>
+            <p>🕒 ${safe(waktu || 'Waktu menyusul')}</p>
+            <p>📍 ${safe(item.lokasi || 'Lokasi menyusul')}</p>
+            ${item.keterangan ? `<p>${safe(item.keterangan)}</p>` : ''}
+          </article>`;
+        }).join('');
+      } catch (err) {
+        showError(schedulesEl, 'Jadwal belum dapat dimuat. Periksa izin SELECT publik pada tabel schedules di Supabase.');
+        status.textContent = 'Detail: ' + (err.message || 'Kesalahan koneksi');
+      }
+    }
+
+    async function loadTournaments(client) {
+      const status = document.getElementById('tournament-status');
+      try {
+        const { data, error } = await client.from('tournaments')
+          .select('id,nama_turnamen,tanggal_mulai,tanggal_selesai,lokasi,status,keterangan')
+          .order('tanggal_mulai', { ascending: true }).limit(30);
+        if (error) throw error;
+        if (!data || data.length === 0) {
+          showError(tournamentsEl, 'Belum ada informasi turnamen.');
+          return;
+        }
+        tournamentsEl.innerHTML = data.map(item => {
+          const range = dateID(item.tanggal_mulai) + (item.tanggal_selesai && item.tanggal_selesai !== item.tanggal_mulai ? ' – ' + dateID(item.tanggal_selesai) : '');
+          return `<article class="card">
+            <span class="date">${safe(item.status || 'Informasi turnamen')}</span>
+            <h3>${safe(item.nama_turnamen || 'Turnamen badminton')}</h3>
+            <p>📅 ${safe(range)}</p>
+            <p>📍 ${safe(item.lokasi || 'Lokasi menyusul')}</p>
+            ${item.keterangan ? `<p>${safe(item.keterangan)}</p>` : ''}
+          </article>`;
+        }).join('');
+      } catch (err) {
+        showError(tournamentsEl, 'Informasi turnamen belum dapat dimuat. Periksa izin SELECT publik pada tabel tournaments di Supabase.');
+        status.textContent = 'Detail: ' + (err.message || 'Kesalahan koneksi');
+      }
+    }
+
+    if (!window.supabase) {
+      showError(schedulesEl, 'Pustaka koneksi belum termuat. Periksa koneksi internet lalu muat ulang halaman.');
+      showError(tournamentsEl, 'Pustaka koneksi belum termuat. Periksa koneksi internet lalu muat ulang halaman.');
+    } else {
+      const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+      loadSchedules(client);
+      loadTournaments(client);
+    }
+  </script>
+</body>
+</html>
