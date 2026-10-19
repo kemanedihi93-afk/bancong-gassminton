@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daftar Anggota - BANCONG GASSMINTON</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #101820, #253746);
+      color: #fff;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 420px;
+      padding: 28px;
+      background: #fff;
+      color: #222;
+      border-radius: 18px;
+      box-shadow: 0 10px 35px #0005;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      text-align: center;
+      color: #087f5b;
+      font-size: 25px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #666;
+      margin-bottom: 25px;
+      line-height: 1.5;
+    }
+
+    label {
+      display: block;
+      margin: 14px 0 7px;
+      font-weight: bold;
+    }
+
+    input {
+      width: 100%;
+      padding: 13px;
+      border: 1px solid #ccc;
+      border-radius: 9px;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 22px;
+      padding: 14px;
+      border: none;
+      border-radius: 9px;
+      background: #087f5b;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    #pesan {
+      display: none;
+      margin-top: 18px;
+      padding: 12px;
+      border-radius: 8px;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+    }
+
+    .sukses {
+      display: block !important;
+      background: #d8f3dc;
+      color: #1b4332;
+    }
+
+    .gagal {
+      display: block !important;
+      background: #ffe0e0;
+      color: #9b2226;
+    }
+
+    .link {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    a {
+      color: #087f5b;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="card">
+    <h1>🏸 Daftar Anggota</h1>
+
+    <p class="subtitle">
+      BANCONG GASSMINTON<br>
+      DATAR BANCONG
+    </p>
+
+    <form id="formDaftar">
+      <label for="nama">Nama lengkap</label>
+      <input
+        id="nama"
+        type="text"
+        maxlength="100"
+        required
+        autocomplete="name"
+        placeholder="Masukkan nama lengkap"
+      >
+
+      <label for="email">Email aktif</label>
+      <input
+        id="email"
+        type="email"
+        required
+        autocomplete="email"
+        placeholder="Masukkan email"
+      >
+
+      <label for="password">Kata sandi</label>
+      <input
+        id="password"
+        type="password"
+        minlength="8"
+        required
+        autocomplete="new-password"
+        placeholder="Minimal 8 karakter"
+      >
+
+      <button id="tombolDaftar" type="submit">
+        DAFTAR SEKARANG
+      </button>
+    </form>
+
+    <div id="pesan" role="status" aria-live="polite"></div>
+
+    <div class="link">
+      Sudah punya akun?
+      <a href="anggota-login.html">Login di sini</a>
+    </div>
+  </main>
+
+  <script>
+    const SUPABASE_URL =
+      "https://vyrypjxuhiywvkeiewpd.supabase.co";
+
+    const SUPABASE_KEY =
+      "sb_publishable_pRU3ZWYBomp_vQoUaI6Tzg_TbxqrYby";
+
+    const db = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
+
+    const form = document.getElementById("formDaftar");
+    const tombol = document.getElementById("tombolDaftar");
+    const pesan = document.getElementById("pesan");
+
+    function tampilkanPesan(teks, jenis) {
+      pesan.textContent = teks;
+      pesan.className = jenis;
+    }
+
+    form.addEventListener("submit", async function(event) {
+      event.preventDefault();
+
+      const nama = document.getElementById("nama")
+        .value.trim();
+
+      const email = document.getElementById("email")
+        .value.trim();
+
+      const password = document.getElementById("password")
+        .value;
+
+      if (!nama || !email || password.length < 8) {
+        tampilkanPesan(
+          "Periksa kembali nama, email, dan kata sandi. Kata sandi minimal 8 karakter.",
+          "gagal"
+        );
+        return;
+      }
+
+      tombol.disabled = true;
+      tombol.textContent = "Memproses...";
+      pesan.className = "";
+      pesan.textContent = "";
+
+      try {
+        const { data, error } = await db.auth.signUp({
+          email: email,
+          password: password,
+          options: {
+            data: {
+              nama: nama
+            }
+          }
+        });
+
+        if (error) throw error;
+
+        // Jika pendaftaran langsung menghasilkan sesi,
+        // buat profil dengan status pending.
+        if (data.session && data.user) {
+          const { error: profilError } = await db
+            .from("member_profiles")
+            .insert({
+              user_id: data.user.id,
+              nama: nama,
+              status: "pending"
+            });
+
+          if (profilError) {
+            tampilkanPesan(
+              "Akun berhasil dibuat, tetapi profil belum tersimpan. Hubungi admin untuk menyelesaikan pendaftaran.",
+              "gagal"
+            );
+            return;
+          }
+
+          await db.auth.signOut();
+
+          tampilkanPesan(
+            "Pendaftaran berhasil! Akun menunggu persetujuan admin. Silakan login setelah admin menyetujui akun.",
+            "sukses"
+          );
+        } else {
+          tampilkanPesan(
+            "Pendaftaran diterima. Periksa email untuk konfirmasi jika diminta. Setelah itu, admin perlu memastikan profil pendaftaran tercatat dan menyetujui akun sebelum akses diberikan.",
+            "sukses"
+          );
+        }
+
+        form.reset();
+
+      } catch (error) {
+        tampilkanPesan(
+          "Pendaftaran gagal: " + error.message,
+          "gagal"
+        );
+      } finally {
+        tombol.disabled = false;
+        tombol.textContent = "DAFTAR SEKARANG";
+      }
+    });
+  </script>
+</body>
+</html>
