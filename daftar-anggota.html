@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Pendaftaran Anggota - BANCONG GASSMINTON</title>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -15,10 +15,10 @@
     body {
       margin: 0;
       min-height: 100vh;
+      padding: 20px;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 20px;
       font-family: Arial, sans-serif;
       background: linear-gradient(135deg, #101820, #253746);
     }
@@ -26,21 +26,21 @@
     .card {
       width: 100%;
       max-width: 420px;
-      padding: 28px;
+      padding: 26px;
       background: white;
       border-radius: 18px;
       box-shadow: 0 10px 35px #0005;
     }
 
     h1 {
-      text-align: center;
       color: #087f5b;
-      font-size: 24px;
+      text-align: center;
+      font-size: 25px;
     }
 
     .subtitle {
-      text-align: center;
       color: #666;
+      text-align: center;
       line-height: 1.6;
       margin-bottom: 25px;
     }
@@ -49,7 +49,6 @@
       display: block;
       margin: 16px 0 7px;
       font-weight: bold;
-      color: #333;
     }
 
     input {
@@ -75,15 +74,17 @@
 
     button:disabled {
       opacity: 0.6;
+      cursor: wait;
     }
 
     #pesan {
       display: none;
       margin-top: 18px;
-      padding: 12px;
-      border-radius: 8px;
-      line-height: 1.5;
+      padding: 13px;
+      border-radius: 9px;
+      line-height: 1.6;
       overflow-wrap: anywhere;
+      white-space: pre-wrap;
     }
 
     #pesan.sukses {
@@ -101,7 +102,6 @@
     .kembali {
       text-align: center;
       margin-top: 20px;
-      font-size: 14px;
     }
 
     a {
@@ -116,9 +116,9 @@
     <h1>🏸 Daftar Anggota</h1>
 
     <p class="subtitle">
-      BANCONG GASSMINTON<br>
+      <strong>BANCONG GASSMINTON</strong><br>
       DATAR BANCONG<br>
-      <small>Isi data dengan benar untuk mendaftar.</small>
+      Isi nama dan nomor WhatsApp untuk mendaftar.
     </p>
 
     <form id="formDaftar">
@@ -127,8 +127,8 @@
         id="nama"
         type="text"
         maxlength="100"
-        autocomplete="name"
         placeholder="Masukkan nama lengkap"
+        autocomplete="name"
         required
       >
 
@@ -138,111 +138,9 @@
         type="tel"
         maxlength="20"
         inputmode="tel"
-        autocomplete="tel"
         placeholder="Contoh: 081234567890"
+        autocomplete="tel"
         required
       >
 
-      <button id="tombolDaftar" type="submit">
-        DAFTAR SEKARANG
-      </button>
-    </form>
-
-    <div id="pesan" role="status" aria-live="polite"></div>
-
-    <div class="kembali">
-      <a href="index.html">Kembali ke halaman utama</a>
-    </div>
-  </main>
-
-  <script>
-    const SUPABASE_URL =
-      "https://vyrypjxuhiywvkeiewpd.supabase.co";
-
-    const SUPABASE_KEY =
-      "sb_publishable_pRU3ZWYBomp_vQoUaI6Tzg_TbxqrYby";
-
-    const db = window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_KEY
-    );
-
-    const form = document.getElementById("formDaftar");
-    const tombol = document.getElementById("tombolDaftar");
-    const pesan = document.getElementById("pesan");
-
-    function tampilkanPesan(teks, jenis) {
-      pesan.textContent = teks;
-      pesan.className = jenis;
-    }
-
-    form.addEventListener("submit", async function(event) {
-      event.preventDefault();
-
-      const nama = document.getElementById("nama")
-        .value.trim();
-
-      const whatsapp = document.getElementById("whatsapp")
-        .value.trim();
-
-      if (nama.length < 2 || nama.length > 100) {
-        tampilkanPesan(
-          "Nama harus terdiri dari 2 sampai 100 karakter.",
-          "gagal"
-        );
-        return;
-      }
-
-      const digitWhatsapp = whatsapp.replace(/\D/g, "");
-
-      if (
-        digitWhatsapp.length < 8 ||
-        digitWhatsapp.length > 15 ||
-        !/^[0-9+()\-\s]+$/.test(whatsapp)
-      ) {
-        tampilkanPesan(
-          "Periksa kembali nomor WhatsApp yang kamu masukkan.",
-          "gagal"
-        );
-        return;
-      }
-
-      tombol.disabled = true;
-      tombol.textContent = "Mengirim pendaftaran...";
-      pesan.className = "";
-
-      try {
-        const { error } = await db
-          .from("member_registrations")
-          .insert({
-            nama: nama,
-            nomor_whatsapp: whatsapp,
-            status: "pending"
-          });
-
-        if (error) {
-          throw error;
-        }
-
-        tampilkanPesan(
-          "Pendaftaran berhasil dikirim! Status kamu MENUNGGU PERSETUJUAN ADMIN. Data anggota belum aktif sampai admin menyetujuinya.",
-          "sukses"
-        );
-
-        form.reset();
-
-      } catch (error) {
-        console.error("Kesalahan pendaftaran:", error);
-
-        tampilkanPesan(
-          "Pendaftaran belum berhasil disimpan. Silakan coba lagi nanti.",
-          "gagal"
-        );
-      } finally {
-        tombol.disabled = false;
-        tombol.textContent = "DAFTAR SEKARANG";
-      }
-    });
-  </script>
-</body>
-</html>
+      <button id="tombolDa
