@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Portal Anggota | Bancong Gassminton</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#101820;color:#fff;font-family:Arial,sans-serif;padding:18px}
+.container{max-width:850px;margin:auto}
+header{text-align:center;padding:20px 0}
+h1{color:#ff4545}
+.card{background:#1d2935;padding:18px;border-radius:12px;margin:15px 0}
+button{background:#e83232;color:white;border:0;padding:12px 16px;border-radius:8px;font-weight:bold;cursor:pointer}
+.secondary{background:#34495e}
+a{color:#ff8585}
+.item{border:1px solid #465463;padding:12px;border-radius:9px;margin:10px 0}
+.item h3{color:#ff7777;margin-top:0}
+.muted{color:#cbd5e1}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+<h1>🏸 BANCONG GASSMINTON</h1>
+<p class="muted">PORTAL ANGGOTA DATAR BANCONG</p>
+</header>
+
+<div id="loading" class="card">Memeriksa login...</div>
+
+<main id="app" class="hidden">
+<div class="card">
+<h2>Selamat datang!</h2>
+<p id="account"></p>
+<p class="muted">Kamu masuk sebagai anggota. Halaman ini hanya menyediakan akses melihat data.</p>
+<button id="logout">Keluar</button>
+<button class="secondary" onclick="location.href='index.html'">Beranda</button>
+</div>
+
+<div class="card">
+<h2>📅 Jadwal Kegiatan</h2>
+<div id="schedules">Memuat jadwal...</div>
+</div>
+
+<div class="card">
+<h2>🏆 Turnamen</h2>
+<div id="tournaments">Memuat turnamen...</div>
+</div>
+
+<div class="card">
+<h2>🏸 Hasil Pertandingan</h2>
+<div id="matches">Memuat pertandingan...</div>
+</div>
+
+<div class="card">
+<h2>👥 Data Anggota</h2>
+<div id="members">Memuat data anggota...</div>
+</div>
+
+<div class="card">
+<h2>💰 Ringkasan Kas</h2>
+<div id="cash">Memuat ringkasan kas...</div>
+</div>
+
+<div class="card">
+<h2>🤝 Ringkasan Arisan</h2>
+<div id="arisan">Memuat ringkasan arisan...</div>
+</div>
+</main>
+</div>
+
+<script>
+const URL='https://vyrypjxuhiywvkeiewpd.supabase.co';
+const KEY='sb_publishable_pRU3ZWYBomp_vQoUaI6Tzg_TbxqrYby';
+const db=window.supabase.createClient(URL,KEY);
+const $=id=>document.getElementById(id);
+
+function el(tag,text){
+  const node=document.createElement(tag);
+  node.textContent=text;
+  return node;
+}
+
+function showRows(id,rows,fields,emptyText){
+  const box=$(id);
+  box.innerHTML='';
+  if(!rows||rows.length===0){
+    box.textContent=emptyText;
+    return;
+  }
+  rows.forEach(row=>{
+    const item=document.createElement('div');
+    item.className='item';
+    fields.forEach(field=>{
+      if(row[field.key]!==null&&row[field.key]!==undefined){
+        const p=document.createElement('p');
+        p.textContent=field.label+': '+row[field.key];
+        item.appendChild(p);
+      }
+    });
+    box.appendChild(item);
+  });
+}
+
+async function loadPublic(){
+  const tasks=[
+    db.from('schedules').select('judul,tanggal,waktu,lokasi,keterangan').order('tanggal'),
+    db.from('tournaments').select('nama_turnamen,tanggal_mulai,tanggal_selesai,lokasi,status,keterangan').order('tanggal_mulai',{ascending:false}),
+    db.from('matches').select('pemain_1,pemain_2,skor_pemain_1,skor_pemain_2,status,tanggal_pertandingan').order('tanggal_pertandingan',{ascending:false})
+  ];
+  const [s,t,m]=await Promise.all(tasks);
+
+  showRows('schedules',s.data?.map(x=>({
+    judul:x.judul,tanggal:x.tanggal,
+    waktu:x.waktu,lokasi:x.lokasi,keterangan:x.keterangan
+  })),[
+    {key:'judul',label:'Kegiatan'},{key:'tanggal',label:'Tanggal'},
+    {key:'waktu',label:'Waktu'},{key:'lokasi',label:'Lokasi'},
+    {key:'keterangan',label:'Keterangan'}
+  ],s.error?'Gagal memuat: '+s.error.message:'Belum ada jadwal.');
+
+  showRows('tournaments',t.data,[
+    {key:'nama_turnamen',label:'Turnamen'},
+    {key:'tanggal_mulai',label:'Mulai'},
+    {key:'tanggal_selesai',label:'Selesai'},
+    {key:'lokasi',label:'Lokasi'},
+    {key:'status',label:'Status'},
+    {key:'keterangan',label:'Keterangan'}
+  ],t.error?'Gagal memuat: '+t.error.message:'Belum ada turnamen.');
+
+  showRows('matches',m.data,[
+    {key:'pemain_1',label:'Pemain 1'},
+    {key:'skor_pemain_1',label:'Skor pemain 1'},
+    {key:'pemain_2',label:'Pemain 2'},
+    {key:'skor_pemain_2',label:'Skor pemain 2'},
+    {key:'status',label:'Status'},
+    {key:'tanggal_pertandingan',label:'Tanggal pertandingan'}
+  ],m.error?'Gagal memuat: '+m.error.message:'Belum ada pertandingan.');
+}
+
+async function loadPrivate(){
+  const [members,cash,arisan]=await Promise.all([
+    db.from('members').select('nama_anggota,dusun,tanggal_pendaftaran').order('nama_anggota'),
+    db.from('cash_transactions').select('jenis,jumlah,tanggal'),
+    db.from('arisan_payments').select('nama_anggota,jumlah_bayar,status,tanggal_bayar')
+  ]);
+
+  showRows('members',members.data,[
+    {key:'nama_anggota',label:'Nama'},
+    {key:'dusun',label:'Dusun'},
+    {key:'tanggal_pendaftaran',label:'Tanggal daftar'}
+  ],members.error?'Gagal memuat: '+members.error.message:'Belum ada data anggota.');
+
+  const cashBox=$('cash');
+  if(cash.error){
+    cashBox.textContent='Gagal memuat: '+cash.error.message;
+  }else{
+    const totalMasuk=(cash.data||[]).filter(x=>x.jenis==='pemasukan').reduce((a,x)=>a+Number(x.jumlah||0),0);
+    const totalKeluar=(cash.data||[]).filter(x=>x.jenis==='pengeluaran').reduce((a,x)=>a+Number(x.jumlah||0),0);
+    cashBox.innerHTML='';
+    cashBox.append(
+      el('p','Total pemasukan: Rp '+totalMasuk.toLocaleString('id-ID')),
+      el('p','Total pengeluaran: Rp '+totalKeluar.toLocaleString('id-ID')),
+      el('p','Saldo: Rp '+(totalMasuk-totalKeluar).toLocaleString('id-ID'))
+    );
+  }
+
+  const arisanBox=$('arisan');
+  if(arisan.error){
+    arisanBox.textContent='Gagal memuat: '+arisan.error.message;
+  }else{
+    const rows=arisan.data||[];
+    const paid=rows.filter(x=>x.status==='sudah bayar');
+    arisanBox.innerHTML='';
+    arisanBox.append(
+      el('p','Jumlah catatan: '+rows.length),
+      el('p','Sudah bayar: '+paid.length),
+      el('p','Total pembayaran tercatat: Rp '+paid.reduce((a,x)=>a+Number(x.jumlah_bayar||0),0).toLocaleString('id-ID'))
+    );
+  }
+}
+
+async function init(){
+  const {data:{session},error}=await db.auth.getSession();
+  if(error||!session){
+    $('loading').innerHTML='Kamu harus login terlebih dahulu. <a href="anggota-login.html">Login anggota</a>';
+    return;
+  }
+
+  const {data:{user},error:userError}=await db.auth.getUser();
+  if(userError||!user){
+    $('loading').textContent='Sesi tidak valid. Silakan login kembali.';
+    return;
+  }
+
+  if(user.app_metadata?.role==='admin'){
+    location.href='dashboard.html';
+    return;
+  }
+
+  $('account').textContent='Login sebagai: '+(user.email||'Anggota');
+  $('loading').classList.add('hidden');
+  $('app').classList.remove('hidden');
+
+  await Promise.all([loadPublic(),loadPrivate()]);
+}
+
+$('logout').addEventListener('click',async()=>{
+  await db.auth.signOut();
+  location.href='anggota-login.html';
+});
+
+init();
+</script>
+</body>
+</html>
