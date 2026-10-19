@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Arisan - BANCONG GASSMINTON</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 16px;
+      font-family: Arial, sans-serif;
+      background: #f1f5f9;
+      color: #172033;
+    }
+    .container { max-width: 950px; margin: auto; }
+    .card {
+      background: white;
+      padding: 20px;
+      margin-bottom: 16px;
+      border-radius: 14px;
+      box-shadow: 0 3px 12px #0000000d;
+    }
+    h1 { font-size: 24px; }
+    h2 { font-size: 19px; }
+    .kembali {
+      display: inline-block;
+      margin-bottom: 14px;
+      color: #166534;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .ringkasan { display: flex; gap: 12px; margin-bottom: 16px; }
+    .angka {
+      flex: 1;
+      padding: 18px;
+      border-radius: 12px;
+      background: #dcfce7;
+      overflow-wrap: anywhere;
+    }
+    .angka strong { display: block; font-size: 22px; margin-top: 8px; }
+    input, select, textarea, button {
+      width: 100%;
+      padding: 12px;
+      margin: 6px 0;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 15px;
+    }
+    button {
+      background: #166534;
+      color: white;
+      border: 0;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .hapus { background: #b91c1c; }
+    .batal { background: #64748b; }
+    .tabel { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; min-width: 650px; }
+    th, td { text-align: left; padding: 10px; border-bottom: 1px solid #e2e8f0; }
+    th { background: #f8fafc; }
+    .pesan { white-space: pre-wrap; margin-top: 10px; }
+    .kecil { font-size: 12px; color: #64748b; }
+    @media (max-width: 550px) {
+      .ringkasan { flex-direction: column; }
+      body { padding: 10px; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <a class="kembali" href="dashboard.html">← Kembali ke Dashboard</a>
+
+  <div class="card">
+    <h1>🤝 Arisan BANCONG GASSMINTON</h1>
+    <p>Catatan pembayaran arisan anggota badminton Datar Bancong.</p>
+  </div>
+
+  <div class="ringkasan">
+    <div class="angka">
+      Total Pembayaran Masuk
+      <strong id="total">Rp0</strong>
+    </div>
+    <div class="angka">
+      Jumlah Pembayaran Lunas
+      <strong id="lunas">0</strong>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 id="judulForm">Tambah Pembayaran</h2>
+    <form id="formArisan">
+      <label>Nama anggota</label>
+      <input id="nama" maxlength="150" required placeholder="Nama anggota">
+
+      <label>Jumlah pembayaran (rupiah)</label>
+      <input id="jumlah" type="number" min="1" step="1" required placeholder="Contoh: 50000">
+
+      <label>Tanggal pembayaran</label>
+      <input id="tanggal" type="date" required>
+
+      <label>Status</label>
+      <select id="status" required>
+        <option value="Lunas">Lunas</option>
+        <option value="Belum Lunas">Belum Lunas</option>
+      </select>
+
+      <label>Keterangan</label>
+      <textarea id="keterangan" rows="2" placeholder="Keterangan tambahan"></textarea>
+
+      <button id="simpan" type="submit">Simpan Pembayaran</button>
+      <button id="batal" type="button" class="batal" hidden>Batal Edit</button>
+      <div id="pesan" class="pesan" role="status"></div>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>📋 Riwayat Arisan</h2>
+    <button type="button" id="muat">Muat Ulang Data</button>
+    <div class="tabel">
+      <table>
+        <thead>
+          <tr>
+            <th>Tanggal</th>
+            <th>Nama</th>
+            <th>Jumlah</th>
+            <th>Status</th>
+            <th>Keterangan</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="daftar">
+          <tr><td colspan="6">Memuat data...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <p class="kecil">Data arisan hanya dapat dikelola oleh admin yang berwenang.</p>
+</div>
+
+<script>
+const SUPABASE_URL = "https://vyrypjxuhiywvkeiewpd.supabase.co";
+const SUPABASE_KEY = "sb_publishable_pRU3ZWYBomp_vQoUaI6Tzg_TbxqrYby";
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let pembayaran = [];
+let editId = null;
+
+const el = id => document.getElementById(id);
+
+function rupiah(n) {
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    maximumFractionDigits: 0
+  }).format(Number(n) || 0);
+}
+
+function tanggalHariIni() {
+  const sekarang = new Date();
+  return new Date(sekarang.getTime() - sekarang.getTimezoneOffset() * 60000)
+    .toISOString().slice(0, 10);
+}
+
+function pesan(teks, error = false) {
+  el("pesan").textContent = teks;
+  el("pesan").style.color = error ? "#b91c1c" : "#166534";
+}
+
+async function mulai() {
+  const { data: { user }, error } = await db.auth.getUser();
+
+  if (error || !user) {
+    location.replace("admin.html");
+    return;
+  }
+
+  if (user.app_metadata?.role !== "admin") {
+    document.body.innerHTML =
+      "<h2>Akses ditolak</h2><p>Akun ini bukan admin. <a href='admin.html'>Kembali ke login</a></p>";
+    return;
+  }
+
+  el("tanggal").value = tanggalHariIni();
+  await muatData();
+}
+
+async function muatData() {
+  el("daftar").innerHTML =
+    "<tr><td colspan='6'>Memuat data...</td></tr>";
+
+  const { data, error } = await db
+    .from("arisan_payments")
+    .select("*")
+    .order("tanggal_bayar", { ascending: false })
+    .order("id", { ascending: false });
+
+  if (error) {
+    el("daftar").innerHTML =
+      "<tr><td colspan='6'>Data gagal dimuat.</td></tr>";
+    pesan("Gagal memuat data: " + error.message, true);
+    return;
+  }
+
+  pembayaran = data || [];
+  gambarData();
+  pesan("");
+}
+
+function gambarData() {
+  let total = 0;
+  let jumlahLunas = 0;
+
+  pembayaran.forEach(p => {
+    if (p.status === "Lunas") {
+      total += Number(p.jumlah_bayar) || 0;
+      jumlahLunas++;
+    }
+  });
+
+  el("total").textContent = rupiah(total);
+  el("lunas").textContent = jumlahLunas;
+
+  const tbody = el("daftar");
+  tbody.replaceChildren();
+
+  if (!pembayaran.length) {
+    const tr = document.createElement("tr");
+    const td = document.createElement("td");
+    td.colSpan = 6;
+    td.textContent = "Belum ada pembayaran arisan.";
+    tr.appendChild(td);
+    tbody.appendChild(tr);
+    return;
+  }
+
+  pembayaran.forEach(p => {
+    const tr = document.createElement("tr");
+
+    [
+      p.tanggal_bayar,
+      p.nama_anggota,
+      rupiah(p.jumlah_bayar),
+      p.status,
+      p.keterangan || "-"
+    ].forEach(v => {
+      const td = document.createElement("td");
+      td.textContent = v == null ? "" : String(v);
+      tr.appendChild(td);
+    });
+
+    const aksi = document.createElement("td");
+
+    const edit = document.createElement("button");
+    edit.type = "button";
+    edit.textContent = "Edit";
+    edit.addEventListener("click", () => mulaiEdit(p.id));
+
+    const hapus = document.createElement("button");
+    hapus.type = "button";
+    hapus.textContent = "Hapus";
+    hapus.className = "hapus";
+    hapus.addEventListener("click", () => hapusData(p.id));
+
+    aksi.append(edit, hapus);
+    tr.appendChild(aksi);
+    tbody.appendChild(tr);
+  });
+}
+
+el("formArisan").addEventListener("submit", async event => {
+  event.preventDefault();
+  pesan("");
+
+  const jumlah = Number(el("jumlah").value);
+
+  if (!Number.isSafeInteger(jumlah) || jumlah <= 0) {
+    pesan("Jumlah pembayaran harus berupa bilangan rupiah positif.", true);
+    return;
+  }
+
+  const isi = {
+    nama_anggota: el("nama").value.trim(),
+    jumlah_bayar: jumlah,
+    tanggal_bayar: el("tanggal").value,
+    status: el("status").value,
+    keterangan: el("keterangan").value.trim()
+  };
+
+  if (!isi.nama_anggota || !isi.tanggal_bayar) {
+    pesan("Lengkapi nama anggota dan tanggal pembayaran.", true);
+    return;
+  }
+
+  el("simpan").disabled = true;
+
+  try {
+    let hasil;
+
+    if (editId !== null) {
+      hasil = await db
+        .from("arisan_payments")
+        .update(isi)
+        .eq("id", editId);
+    } else {
+      hasil = await db.from("arisan_payments").insert(isi);
+    }
+
+    if (hasil.error) throw hasil.error;
+
+    resetForm();
+    await muatData();
+    pesan("Pembayaran berhasil disimpan.");
+  } catch (err) {
+    pesan("Gagal menyimpan: " + (err.message || "Terjadi kesalahan."), true);
+  } finally {
+    el("simpan").disabled = false;
+  }
+});
+
+function mulaiEdit(id) {
+  const p = pembayaran.find(x => String(x.id) === String(id));
+  if (!p) return;
+
+  editId = id;
+  el("nama").value = p.nama_anggota || "";
+  el("jumlah").value = p.jumlah_bayar;
+  el("tanggal").value = p.tanggal_bayar;
+  el("status").value = p.status;
+  el("keterangan").value = p.keterangan || "";
+
+  el("judulForm").textContent = "Edit Pembayaran";
+  el("simpan").textContent = "Simpan Perubahan";
+  el("batal").hidden = false;
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+async function hapusData(id) {
+  if (!confirm("Yakin ingin menghapus pembayaran ini?")) return;
+
+  const { error } = await db
+    .from("arisan_payments")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    pesan("Gagal menghapus: " + error.message, true);
+    return;
+  }
+
+  await muatData();
+  pesan("Pembayaran berhasil dihapus.");
+}
+
+function resetForm() {
+  editId = null;
+  el("formArisan").reset();
+  el("tanggal").value = tanggalHariIni();
+  el("judulForm").textContent = "Tambah Pembayaran";
+  el("simpan").textContent = "Simpan Pembayaran";
+  el("batal").hidden = true;
+}
+
+el("batal").addEventListener("click", resetForm);
+el("muat").addEventListener("click", muatData);
+
+mulai();
+</script>
+</body>
+  </html>
