@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Admin | BANCONG GASSMINTON</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; font-family: Arial, sans-serif; color: #fff;
+      background: #101010;
+    }
+    header {
+      padding: 22px 16px; background: #1b1b1b;
+      border-bottom: 3px solid #e50914;
+    }
+    header h1 { margin: 0; font-size: 22px; }
+    header p { margin: 8px 0 0; color: #bbb; font-size: 14px; }
+    main { max-width: 900px; margin: auto; padding: 20px 15px; }
+    .status {
+      padding: 15px; background: #1b1b1b; border-radius: 10px;
+      border: 1px solid #333; margin-bottom: 20px;
+    }
+    .grid {
+      display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .menu {
+      display: block; padding: 20px 12px; text-decoration: none;
+      color: white; background: #1d1d1d; border: 1px solid #383838;
+      border-radius: 12px; min-height: 110px;
+    }
+    .menu strong { display: block; font-size: 17px; margin-bottom: 8px; }
+    .menu span { font-size: 13px; color: #bbb; }
+    .menu:hover { border-color: #e50914; }
+    .logout {
+      margin-top: 24px; padding: 13px 18px; border: 0;
+      border-radius: 8px; background: #e50914; color: white;
+      font-size: 15px; font-weight: bold;
+    }
+    #pesan { color: #ffbaba; }
+    @media (min-width: 650px) {
+      .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🏸 BANCONG GASSMINTON</h1>
+    <p>Dashboard Pengelola</p>
+  </header>
+
+  <main>
+    <div class="status">
+      <strong>Selamat datang, Admin!</strong>
+      <p id="statusAkun">Memeriksa akun...</p>
+      <p id="pesan"></p>
+    </div>
+
+    <section class="grid">
+      <a class="menu" href="members.html">
+        <strong>👥 Anggota</strong>
+        <span>Data dan pendaftaran anggota</span>
+      </a>
+      <a class="menu" href="cash.html">
+        <strong>💰 Kas</strong>
+        <span>Pemasukan dan pengeluaran</span>
+      </a>
+      <a class="menu" href="arisan.html">
+        <strong>🤝 Arisan</strong>
+        <
