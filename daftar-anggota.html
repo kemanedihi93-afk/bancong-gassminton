@@ -25,17 +25,23 @@
 
     .card {
       width: 100%;
-      max-width: 420px;
+      max-width: 430px;
       padding: 26px;
       background: white;
       border-radius: 18px;
       box-shadow: 0 10px 35px #0005;
     }
 
+    .logo {
+      text-align: center;
+      font-size: 48px;
+    }
+
     h1 {
       color: #087f5b;
       text-align: center;
-      font-size: 25px;
+      font-size: 24px;
+      margin-bottom: 8px;
     }
 
     .subtitle {
@@ -49,20 +55,23 @@
       display: block;
       margin: 16px 0 7px;
       font-weight: bold;
+      color: #263238;
     }
 
-    input {
+    input,
+    select {
       width: 100%;
       padding: 13px;
       border: 1px solid #ccc;
       border-radius: 9px;
       font-size: 16px;
+      background: white;
     }
 
     button {
       width: 100%;
       padding: 14px;
-      margin-top: 22px;
+      margin-top: 24px;
       border: none;
       border-radius: 9px;
       background: #087f5b;
@@ -108,17 +117,27 @@
       color: #087f5b;
       font-weight: bold;
     }
+
+    .catatan {
+      margin-top: 18px;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #666;
+      text-align: center;
+    }
   </style>
 </head>
 
 <body>
   <main class="card">
-    <h1>🏸 Daftar Anggota</h1>
+    <div class="logo">🏸</div>
+
+    <h1>Pendaftaran Anggota</h1>
 
     <p class="subtitle">
       <strong>BANCONG GASSMINTON</strong><br>
       DATAR BANCONG<br>
-      Isi nama dan nomor WhatsApp untuk mendaftar.
+      Isi data dengan benar untuk mendaftar.
     </p>
 
     <form id="formDaftar">
@@ -127,8 +146,8 @@
         id="nama"
         type="text"
         maxlength="100"
-        placeholder="Masukkan nama lengkap"
         autocomplete="name"
+        placeholder="Masukkan nama lengkap"
         required
       >
 
@@ -138,9 +157,152 @@
         type="tel"
         maxlength="20"
         inputmode="tel"
-        placeholder="Contoh: 081234567890"
         autocomplete="tel"
+        placeholder="Contoh: 081234567890"
         required
       >
 
-      <button id="tombolDa
+      <label for="dusun">Pilih dusun</label>
+      <select id="dusun" required>
+        <option value="">-- Pilih dusun --</option>
+        <option value="Dusun I">Dusun I</option>
+        <option value="Dusun II">Dusun II</option>
+        <option value="Dusun III">Dusun III</option>
+        <option value="Dusun IV">Dusun IV</option>
+        <option value="Dusun V">Dusun V</option>
+      </select>
+
+      <button id="tombolDaftar" type="submit">
+        DAFTAR SEKARANG
+      </button>
+    </form>
+
+    <div id="pesan" role="status" aria-live="polite"></div>
+
+    <p class="catatan">
+      Pendaftaran akan diperiksa oleh admin.
+      Data belum menjadi keanggotaan aktif sebelum disetujui.
+    </p>
+
+    <div class="kembali">
+      <a href="index.html">Kembali ke halaman utama</a>
+    </div>
+  </main>
+
+  <script>
+    const SUPABASE_URL =
+      "https://vyrypjxuhiywvkeiewpd.supabase.co";
+
+    const SUPABASE_KEY =
+      "sb_publishable_pRU3ZWYBomp_vQoUaI6Tzg_TbxqrYby";
+
+    const form = document.getElementById("formDaftar");
+    const tombol = document.getElementById("tombolDaftar");
+    const pesan = document.getElementById("pesan");
+
+    const db = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
+
+    function tampilkanPesan(teks, jenis) {
+      pesan.textContent = teks;
+      pesan.className = jenis;
+    }
+
+    form.addEventListener("submit", async function(event) {
+      event.preventDefault();
+
+      const nama = document.getElementById("nama").value.trim();
+      const whatsapp = document.getElementById("whatsapp").value.trim();
+      const dusun = document.getElementById("dusun").value;
+
+      const digitWhatsapp = whatsapp.replace(/\D/g, "");
+
+      if (nama.length < 2 || nama.length > 100) {
+        tampilkanPesan(
+          "Nama harus terdiri dari 2 sampai 100 karakter.",
+          "gagal"
+        );
+        return;
+      }
+
+      if (
+        digitWhatsapp.length < 8 ||
+        digitWhatsapp.length > 15 ||
+        !/^[0-9+\-()\s]+$/.test(whatsapp)
+      ) {
+        tampilkanPesan(
+          "Nomor WhatsApp tidak valid. Periksa kembali nomor kamu.",
+          "gagal"
+        );
+        return;
+      }
+
+      const daftarDusun = [
+        "Dusun I",
+        "Dusun II",
+        "Dusun III",
+        "Dusun IV",
+        "Dusun V"
+      ];
+
+      if (!daftarDusun.includes(dusun)) {
+        tampilkanPesan("Silakan pilih dusun terlebih dahulu.", "gagal");
+        return;
+      }
+
+      tombol.disabled = true;
+      tombol.textContent = "Mengirim pendaftaran...";
+      pesan.className = "";
+      pesan.textContent = "";
+
+      try {
+        const { error } = await db
+          .from("member_registrations")
+          .insert([{
+            nama: nama,
+            nomor_whatsapp: whatsapp,
+            dusun: dusun,
+            status: "pending"
+          }]);
+
+        if (error) {
+          throw error;
+        }
+
+        tampilkanPesan(
+          "Pendaftaran berhasil dikirim!\n\nDusun: " + dusun +
+          "\nStatus: MENUNGGU PERSETUJUAN ADMIN.\n\nTerima kasih telah mendaftar!",
+          "sukses"
+        );
+
+        form.reset();
+
+      } catch (error) {
+        console.error("Kesalahan pendaftaran:", error);
+
+        let detail = error.message || "Kesalahan tidak diketahui";
+
+        if (error.code === "42501") {
+          detail = "Akses ditolak oleh Supabase. Periksa izin INSERT dan kebijakan RLS.";
+        } else if (error.code === "42P01") {
+          detail = "Tabel member_registrations tidak ditemukan.";
+        } else if (error.code === "23514") {
+          detail = "Ada data yang tidak sesuai dengan aturan tabel Supabase.";
+        }
+
+        tampilkanPesan(
+          "PENDAFTARAN GAGAL\n\nPenyebab: " + detail +
+          (error.code ? "\nKode: " + error.code : ""),
+          "gagal"
+        );
+
+      } finally {
+        tombol.disabled = false;
+        tombol.textContent = "DAFTAR SEKARANG";
+      }
+    });
+  </script>
+</body>
+</html>
