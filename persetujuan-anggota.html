@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Persetujuan Anggota | Bancong Gassminton</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+      background: #f1f5f9;
+      color: #172033;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: auto;
+    }
+
+    .header {
+      background: #111827;
+      color: white;
+      padding: 24px;
+      border-radius: 14px;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 24px;
+    }
+
+    .header p {
+      margin-bottom: 0;
+      color: #d1d5db;
+    }
+
+    .box {
+      background: white;
+      padding: 20px;
+      border-radius: 14px;
+      box-shadow: 0 3px 12px #0000000d;
+      margin-bottom: 18px;
+    }
+
+    .status {
+      padding: 12px;
+      border-radius: 8px;
+      background: #eff6ff;
+      margin-bottom: 16px;
+      overflow-wrap: anywhere;
+    }
+
+    .card {
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+
+    .card h3 {
+      margin-top: 0;
+      margin-bottom: 12px;
+    }
+
+    .detail {
+      margin: 8px 0;
+      overflow-wrap: anywhere;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 5px 9px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    button {
+      border: 0;
+      border-radius: 8px;
+      padding: 11px 14px;
+      margin: 8px 6px 0 0;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: wait;
+    }
+
+    .approve {
+      background: #15803d;
+      color: white;
+    }
+
+    .reject {
+      background: #dc2626;
+      color: white;
+    }
+
+    .refresh {
+      background: #1d4ed8;
+      color: white;
+    }
+
+    .back {
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    .logout {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .muted {
+      color: #64748b;
+    }
+
+    @media (min-width: 700px) {
+      .list {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="container">
+
+    <header class="header">
+      <h1>🏸 BANCONG GASSMINTON</h1>
+      <p>Panel Persetujuan Anggota</p>
+    </header>
+
+    <section id="loginBox" class="box">
+      <h2>Login Admin</h2>
+      <p class="muted">
+        Masuk menggunakan akun admin yang sudah terdaftar.
+      </p>
+
+      <form id="loginForm">
+        <label for="email">Email admin</label>
+        <input
+          id="email"
+          type="email"
+          autocomplete="username"
+          required
+          style="width:100%;padding:12px;margin:8px 0 14px;"
+        >
+
+        <label for="password">Password</label>
+        <input
+          id="password"
+          type="password"
+          autocomplete="current-password"
+          required
+          style="width:100%;padding:12px;margin:8px 0 14px;"
+        >
+
+        <button class="approve" type="submit">LOGIN</button>
+      </form>
+    </section>
+
+    <section id="panel" class="hidden">
+
+      <div class="box">
+        <h2>Daftar Pendaftaran</h2>
+        <div id="message" class="status">Memuat data...</div>
+
+        <button class="refresh" id="refreshBtn">
+          MUAT ULANG
+        </button>
+
+        <button class="back" onclick="location.href='dashboard.html'">
+          KEMBALI KE DASHBOARD
+        </button>
+
+        <button class="logout" id="logoutBtn">
+          KELUAR
+        </button>
+      </div>
+
+      <div class="box">
+        <h2>Menunggu Persetujuan</h2>
+        <div id="pendingList" class="list"></div>
+      </div>
+
+      <div class="box">
+        <h2>Riwayat Pendaftaran</h2>
+        <div id="historyList" class="list"></div>
+      </div>
+
+    </section>
+  </main>
+
+  <script>
+    const SUPABASE_URL =
+      "https://vyrypjxuhiywvkeiewpd.supabase.co";
+
+    const SUPABASE_KEY =
+      "sb_publishable_pRU3ZWYBomp_vQoUaI6Tzg_TbxqrYby";
+
+    const db = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
+
+    const loginBox = document.getElementById("loginBox");
+    const panel = document.getElementById("panel");
+    const message = document.getElementById("message");
+    const pendingList = document.getElementById("pendingList");
+    const historyList = document.getElementById("historyList");
+
+    let busy = false;
+
+    function showMessage(text) {
+      message.textContent = text;
+    }
+
+    function safeText(value) {
+      return value == null || value === "" ? "-" : String(value);
+    }
+
+    async function checkAdmin() {
+      const { data, error } = await db.auth.getSession();
+
+      if (error) {
+        showMessage("Gagal memeriksa sesi login.");
+        return false;
+      }
+
+      const user = data.session?.user;
+
+      if (!user) {
+        loginBox.classList.remove("hidden");
+        panel.classList.add("hidden");
+        return false;
+      }
+
+      if (user.app_metadata?.role !== "admin") {
+        await db.auth.signOut();
+        loginBox.classList.remove("hidden");
+        panel.classList.add("hidden");
+        alert("Akses ditolak. Halaman ini khusus admin.");
+        return false;
+      }
+
+      loginBox.classList.add("hidden");
+      panel.classList.remove("hidden");
+
+      return true;
+    }
+
+    document.getElementById("loginForm").addEventListener(
+      "submit",
+      async function(event) {
+        event.preventDefault();
+
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value;
+
+        const { error } = await db.auth.signInWithPassword({
+          email,
+          password
+        });
+
+        if (error) {
+          alert("Login gagal: " + error.message);
+          return;
+        }
+
+        const isAdmin = await checkAdmin();
+
+        if (isAdmin) {
+          await loadRegistrations();
+        }
+      }
+    );
+
+    async function loadRegistrations() {
+      if (busy) return;
+
+      showMessage("Sedang memuat data pendaftaran...");
+      pendingList.replaceChildren();
+      historyList.replaceChildren();
+
+      const { data, error } = await db
+        .from("member_registrations")
+        .select("id, nama, nomor_whatsapp, dusun, status, created_at")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        showMessage(
+          "Gagal memuat data: " + error.message +
+          ". Pastikan akun admin memiliki akses ke tabel pendaftaran."
+        );
+        return;
+      }
+
+      const pending = data.filter(item => item.status === "pending");
+      const history = data.filter(item => item.status !== "pending");
+
+      showMessage(
+        "Total pendaftar: " + data.length +
+        " | Menunggu persetujuan: " + pending.length
+      );
+
+      if (pending.length === 0) {
+        pendingList.textContent = "Belum ada pendaftaran yang menunggu.";
+      } else {
+        pending.forEach(item => {
+          pendingList.appendChild(createCard(item, true));
+        });
+      }
+
+      if (history.length === 0) {
+        historyList.textContent = "Belum ada riwayat pendaftaran.";
+      } else {
+        history.forEach(item => {
+          historyList.appendChild(createCard(item, false));
+        });
+      }
+    }
+
+    function createCard(item, canReview) {
+      const card = document.createElement("article");
+      card.className = "card";
+
+      const title = document.createElement("h3");
+      title.textContent = safeText(item.nama);
+      card.appendChild(title);
+
+      const details = [
+        "Dusun: " + safeText(item.dusun),
+        "WhatsApp: " + safeText(item.nomor_whatsapp),
+        "Tanggal daftar: " + (
+          item.created_at
+            ? new Date(item.created_at).toLocaleString("id-ID")
+            : "-"
+        )
+      ];
+
+      details.forEach(text => {
+        const p = document.createElement("p");
+        p.className = "detail";
+        p.textContent = text;
+        card.appendChild(p);
+      });
+
+      const badge = document.createElement("span");
+      badge.className = "badge";
+      badge.textContent = item.status === "pending"
+        ? "MENUNGGU PERSETUJUAN"
+        : item.status === "approved"
+          ? "DISETUJUI"
+          : "DITOLAK";
+
+      card.appendChild(badge);
+
+      if (canReview) {
+        const approveBtn = document.createElement("button");
+        approveBtn.className = "approve";
+        approveBtn.textContent = "SETUJUI";
+        approveBtn.addEventListener("click", () => {
+          updateStatus(item, "approved");
+        });
+
+        const rejectBtn = document.createElement("button");
+        rejectBtn.className = "reject";
+        rejectBtn.textContent = "TOLAK";
+        rejectBtn.addEventListener("click", () => {
+          updateStatus(item, "rejected");
+        });
+
+        card.appendChild(document.createElement("br"));
+        card.appendChild(approveBtn);
+        card.appendChild(rejectBtn);
+      }
+
+      return card;
+    }
+
+    async function updateStatus(item, newStatus) {
+      if (busy) return;
+
+      const action = newStatus === "approved"
+        ? "menyetujui"
+        : "menolak";
+
+      if (!confirm("Yakin ingin " + action + " pendaftaran " + item.nama + "?")) {
+        return;
+      }
+
+      busy = true;
+      showMessage("Sedang memperbarui status...");
+
+      const { data, error } = await db
+        .from("member_registrations")
+        .update({ status: newStatus })
+        .eq("id", item.id)
+        .eq("status", "pending")
+        .select("id");
+
+      busy = false;
+
+      if (error) {
+        showMessage("Gagal memperbarui status: " + error.message);
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        showMessage(
+          "Status tidak berubah. Data mungkin sudah diproses atau izin admin belum benar."
+        );
+        await loadRegistrations();
+        return;
+      }
+
+      showMessage(
+        "Pendaftaran " + item.nama + " berhasil diperbarui."
+      );
+
+      await loadRegistrations();
+    }
+
+    document.getElementById("refreshBtn").addEventListener(
+      "click",
+      async () => {
+        if (await checkAdmin()) {
+          await loadRegistrations();
+        }
+      }
+    );
+
+    document.getElementById("logoutBtn").addEventListener(
+      "click",
+      async () => {
+        await db.auth.signOut();
+        panel.classList.add("hidden");
+        loginBox.classList.remove("hidden");
+        showMessage("Kamu sudah keluar.");
+      }
+    );
+
+    (async function start() {
+      if (await checkAdmin()) {
+        await loadRegistrations();
+      }
+    })();
+  </script>
+</body>
+  </html>
