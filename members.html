@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Data Anggota | BANCONG GASSMINTON</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; font-family: Arial, sans-serif;
+      background: #101010; color: #fff;
+    }
+    header {
+      background: #1b1b1b; padding: 20px 15px;
+      border-bottom: 3px solid #e50914;
+    }
+    header h1 { font-size: 21px; margin: 0 0 8px; }
+    header a { color: #ddd; font-size: 14px; }
+    main { max-width: 950px; margin: auto; padding: 18px 14px; }
+    .card {
+      background: #1b1b1b; padding: 17px; margin-bottom: 18px;
+      border: 1px solid #383838; border-radius: 12px;
+    }
+    h2 { font-size: 18px; margin-top: 0; }
+    label { display: block; margin: 12px 0 6px; font-size: 14px; }
+    input, select {
+      width: 100%; padding: 12px; border-radius: 7px;
+      border: 1px solid #555; background: #292929;
+      color: #fff; font-size: 16px;
+    }
+    button {
+      padding: 11px 14px; border: 0; border-radius: 7px;
+      background: #e50914; color: white; font-weight: bold;
+      cursor: pointer; margin: 8px 5px 0 0;
+    }
+    button.secondary { background: #444; }
+    button.delete { background: #7b2020; }
+    button:disabled { opacity: .6; }
+    .search { margin-bottom: 12px; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; min-width: 650px; }
+    th, td { padding: 11px 9px; border-bottom: 1px solid #393939; text-align: left; }
+    th { background: #292929; }
+    td { font-size: 14px; }
+    #pesan { line-height: 1.5; overflow-wrap: anywhere; }
+    .muted { color: #bbb; font-size: 13px; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>🏸 BANCONG GASSMINTON</h1>
+  <a href="dashboard.html">← Kembali ke Dashboard</a>
+</header>
+
+<main>
+  <section class="card">
+    <h2 id="judulForm">➕ Tambah Anggota</h2>
+    <form id="formAnggota">
+      <input type="hidden" id="id">
+
+      <label for="nama">Nama anggota *</label>
+      <input id="nama" maxlength="100" required placeholder="Nama lengkap">
+
+      <label for="wa">Nomor WhatsApp</label>
+      <input id="wa" type="tel" maxlength="25" placeholder="Contoh: 08xxxxxxxxxx">
+
+      <label for="dusun">Dusun *</label>
+      <select id="dusun" required>
+        <option value="">Pilih dusun</option>
+        <option>Dusun I</option>
+        <option>Dusun II</option>
+        <option>Dusun III</option>
+        <option>Dusun IV</option>
+        <option>Dusun V</option>
+      </select>
+
+      <label for="tanggal">Tanggal pendaftaran *</label>
+      <input id="tanggal" type="date" required>
+
+      <button id="simpan" type="submit">Simpan Anggota</button>
+      <button id="batal" class="secondary" type="button" hidden>Batal Edit</button>
+    </form>
+    <p id="pesan" role="status"></p>
+  </section>
+
+  <section class="card">
+    <h2>📋 Daftar Anggota</h2>
+    <input class="search" id="cari" placeholder="Cari nama atau dusun...">
+    <p class="muted" id="jumlah">Memuat data...</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>No.</th><th>Nama</th><th>WhatsApp</th>
+            <th>Dusun</th><th>Tanggal Daftar</th><th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="daftar">
+          <tr><td colspan="6">Memuat data...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<script>
+const SUPABASE_URL = "https://vyrypjxuhiywvkeiewpd.supabase.co";
+const SUPABASE_KEY = "sb_publishable_pRU3ZWYBomp_vQoUaI6Tzg_TbxqrYby";
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const $ = id => document.getElementById(id);
+let anggota = [];
+
+function aman(value) {
+  return String(value ?? "").replace(/[&<>"']/g, c => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;",
+    '"': "&quot;", "'": "&#39;"
+  })[c]);
+}
+
+function pesan(teks, gagal = false) {
+  $("pesan").textContent = teks;
+  $("pesan").style.color = gagal ? "#ff8a8a" : "#a6f0b0";
+}
+
+async function periksaAdmin() {
+  const { data, error } = await db.auth.getUser();
+
+  if (error || !data.user) {
+    location.replace("admin.html");
+    return false;
+  }
+
+  if (data.user.app_metadata?.role !== "admin") {
+    await db.auth.signOut();
+    location.replace("admin.html");
+    return false;
+  }
+
+  return true;
+}
+
+async function muatAnggota() {
+  $("daftar").innerHTML = '<tr><td colspan="6">Memuat data...</td></tr>';
+
+  const { data, error } = await db
+    .from("members")
+    .select("*")
+    .order("id", { ascending: true });
+
+  if (error) {
+    $("daftar").innerHTML =
+      '<tr><td colspan="6">Gagal memuat data. Periksa kebijakan akses tabel.</td></tr>';
+    $("jumlah").textContent = "";
+    pesan("Gagal memuat anggota: " + error.message, true);
+    return;
+  }
+
+  anggota = data || [];
+  tampilkanAnggota();
+}
+
+function tampilkanAnggota() {
+  const kata = $("cari").value.trim().toLowerCase();
+  const hasil = anggota.filter(a =>
+    String(a.nama_anggota || "").toLowerCase().includes(kata) ||
+    String(a.dusun || "").toLowerCase().includes(kata)
+  );
+
+  $("jumlah").textContent = "Jumlah anggota: " + hasil.length;
+
+  if (!hasil.length) {
+    $("daftar").innerHTML =
+      '<tr><td colspan="6">Belum ada data anggota yang cocok.</td></tr>';
+    return;
+  }
+
+  $("daftar").innerHTML = hasil.map((a, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td>${aman(a.nama_anggota)}</td>
+      <td>${aman(a.nomor_whatsapp || "-")}</td>
+      <td>${aman(a.dusun)}</td>
+      <td>${aman(a.tanggal_pendaftaran || "-")}</td>
+      <td>
+        <button type="button" class="secondary" data-edit="${a.id}">Edit</button>
+        <button type="button" class="delete" data-delete="${a.id}">Hapus</button>
+      </td>
+    </tr>
+  `).join("");
+}
+
+$("formAnggota").addEventListener("submit", async event => {
+  event.preventDefault();
+  $("simpan").disabled = true;
+
+  try {
+    const dataAnggota = {
+      nama_anggota: $("nama").value.trim(),
+      nomor_whatsapp: $("wa").value.trim() || null,
+      dusun: $("dusun").value,
+      tanggal_pendaftaran: $("tanggal").value
+    };
+
+    const id = $("id").value;
+    let hasil;
+
+    if (id) {
+      hasil = await db.from("members").update(dataAnggota).eq("id", id);
+    } else {
+      hasil = await db.from("members").insert(dataAnggota);
+    }
+
+    if (hasil.error) throw hasil.error;
+
+    pesan(id ? "Data anggota berhasil diperbarui." : "Anggota berhasil ditambahkan.");
+    resetForm();
+    await muatAnggota();
+  } catch (error) {
+    pesan("Gagal menyimpan: " + error.message, true);
+  } finally {
+    $("simpan").disabled = false;
+  }
+});
+
+function resetForm() {
+  $("formAnggota").reset();
+  $("id").value = "";
+  $("tanggal").value = new Date().toLocaleDateString("en-CA");
+  $("judulForm").textContent = "➕ Tambah Anggota";
+  $("simpan").textContent = "Simpan Anggota";
+  $("batal").hidden = true;
+}
+
+$("batal").addEventListener("click", resetForm);
+$("cari").addEventListener("input", tampilkanAnggota);
+
+$("daftar").addEventListener("click", async event => {
+  const editId = event.target.dataset.edit;
+  const hapusId = event.target.dataset.delete;
+
+  if (editId) {
+    const a = anggota.find(item => String(item.id) === editId);
+    if (!a) return;
+
+    $("id").value = a.id;
+    $("nama").value = a.nama_anggota || "";
+    $("wa").value = a.nomor_whatsapp || "";
+    $("dusun").value = a.dusun || "";
+    $("tanggal").value = a.tanggal_pendaftaran || "";
+    $("judulForm").textContent = "✏️ Edit Anggota";
+    $("simpan").textContent = "Simpan Perubahan";
+    $("batal").hidden = false;
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  if (hapusId) {
+    const a = anggota.find(item => String(item.id) === hapusId);
+    if (!a || !confirm("Hapus data anggota " + a.nama_anggota + "?")) return;
+
+    const { error } = await db.from("members").delete().eq("id", hapusId);
+
+    if (error) {
+      pesan("Gagal menghapus: " + error.message, true);
+      return;
+    }
+
+    pesan("Data anggota berhasil dihapus.");
+    await muatAnggota();
+  }
+});
+
+(async function mulai() {
+  if (!(await periksaAdmin())) return;
+  resetForm();
+  await muatAnggota();
+})();
+</script>
+</body>
+</html>
