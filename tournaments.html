@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Turnamen | Bancong Gassminton</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#101820;color:#fff;font-family:Arial,sans-serif;padding:18px}
+.container{max-width:900px;margin:auto}
+h1{color:#ff4545;margin-bottom:5px}
+.sub{color:#bbb;margin-bottom:22px}
+.card{background:#1d2935;padding:18px;border-radius:14px;margin-bottom:18px}
+input,select,textarea,button{width:100%;padding:12px;margin:7px 0;border-radius:8px;border:1px solid #465463;font-size:15px}
+input,select,textarea{background:#101820;color:white}
+button{background:#ed3030;color:white;border:0;font-weight:bold;cursor:pointer}
+button:hover{opacity:.85}
+.secondary{background:#34495e}
+.danger{background:#a61e1e}
+.item{border:1px solid #465463;border-radius:10px;padding:14px;margin:12px 0}
+.item h3{margin-top:0;color:#ff6767}
+.actions{display:flex;gap:8px}
+.actions button{flex:1}
+.status{color:#9ee7ae;font-size:14px}
+a{color:#ff7777}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>🏸 BANCONG GASSMINTON</h1>
+<div class="sub">DATAR BANCONG • ADMIN TURNAMEN</div>
+
+<div id="loading" class="card">Memeriksa login admin...</div>
+
+<div id="app" class="hidden">
+<div class="card">
+<h2 id="formTitle">➕ Tambah Turnamen</h2>
+<form id="form">
+<input type="hidden" id="editId">
+
+<label>Nama turnamen *</label>
+<input id="nama" required placeholder="Contoh: Turnamen Gassminton 2026">
+
+<label>Tanggal mulai *</label>
+<input id="mulai" type="date" required>
+
+<label>Tanggal selesai *</label>
+<input id="selesai" type="date" required>
+
+<label>Lokasi</label>
+<input id="lokasi" placeholder="Lokasi pertandingan">
+
+<label>Status</label>
+<select id="status">
+<option value="akan datang">Akan Datang</option>
+<option value="berlangsung">Berlangsung</option>
+<option value="selesai">Selesai</option>
+</select>
+
+<label>Keterangan</label>
+<textarea id="keterangan" rows="3" placeholder="Informasi turnamen"></textarea>
+
+<button type="submit" id="saveBtn">Simpan Turnamen</button>
+<button type="button" class="secondary hidden" id="cancelBtn">Batal Edit</button>
+</form>
+<p id="message"></p>
+</div>
+
+<div class="card">
+<h2>📋 Daftar Turnamen</h2>
+<button class="secondary" onclick="loadTournaments()">🔄 Muat Ulang</button>
+<div id="list">Memuat data...</div>
+</div>
+
+<button class="secondary" onclick="location.href='dashboard.html'">⬅ Kembali ke Dashboard</button>
+</div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://vyrypjxuhiywvkeiewpd.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_pRU3ZWYBomp_vQoUaI6Tzg_TbxqrYby';
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const $ = id => document.getElementById(id);
+let editing = false;
+
+function showMessage(text, good=false) {
+  $('message').textContent = text;
+  $('message').style.color = good ? '#9ee7ae' : '#ff7777';
+}
+
+async function init() {
+  const {data:{session},error} = await db.auth.getSession();
+
+  if(error || !session) {
+    $('loading').innerHTML =
+      'Silakan login sebagai admin terlebih dahulu. <a href="admin.html">Login Admin</a>';
+    return;
+  }
+
+  const {data:{user}} = await db.auth.getUser();
+
+  if(user?.app_metadata?.role !== 'admin') {
+    $('loading').textContent = 'Akun ini tidak memiliki akses admin.';
+    return;
+  }
+
+  $('loading').classList.add('hidden');
+  $('app').classList.remove('hidden');
+  await loadTournaments();
+}
+
+async function loadTournaments() {
+  $('list').textContent = 'Memuat data...';
+
+  const {data,error} = await db
+    .from('tournaments')
+    .select('*')
+    .order('tanggal_mulai', {ascending:false});
+
+  if(error) {
+    $('list').textContent = 'Gagal memuat data: ' + error.message;
+    return;
+  }
+
+  if(!data || data.length===0) {
+    $('list').textContent = 'Belum ada turnamen. Silakan tambahkan turnamen.';
+    return;
+  }
+
+  $('list').innerHTML = '';
+
+  data.forEach(t => {
+    const item = document.createElement('div');
+    item.className = 'item';
+
+    const title = document.createElement('h3');
+    title.textContent = '🏆 ' + t.nama_turnamen;
+    item.appendChild(title);
+
+    const details = document.createElement('p');
+    details.textContent =
+      '📅 ' + (t.tanggal_mulai || '-') + ' sampai ' +
+      (t.tanggal_selesai || '-') +
+      '\n📍 ' + (t.lokasi || '-') +
+      '\nStatus: ' + (t.status || '-') +
+      '\nKeterangan: ' + (t.keterangan || '-');
+    details.style.whiteSpace = 'pre-line';
+    item.appendChild(details);
+
+    const actions = document.createElement('div');
+    actions.className = 'actions';
+
+    const edit = document.createElement('button');
+    edit.textContent = '✏️ Edit';
+    edit.onclick = () => editTournament(t);
+    actions.appendChild(edit);
+
+    const del = document.createElement('button');
+    del.textContent = '🗑️ Hapus';
+    del.className = 'danger';
+    del.onclick = () => deleteTournament(t.id,t.nama_turnamen);
+    actions.appendChild(del);
+
+    item.appendChild(actions);
+    $('list').appendChild(item);
+  });
+}
+
+$('form').addEventListener('submit', async e => {
+  e.preventDefault();
+
+  const mulai = $('mulai').value;
+  const selesai = $('selesai').value;
+
+  if(selesai < mulai) {
+    showMessage('Tanggal selesai tidak boleh sebelum tanggal mulai.');
+    return;
+  }
+
+  const record = {
+    nama_turnamen: $('nama').value.trim(),
+    tanggal_mulai: mulai,
+    tanggal_selesai: selesai,
+    lokasi: $('lokasi').value.trim() || null,
+    status: $('status').value,
+    keterangan: $('keterangan').value.trim() || null
+  };
+
+  $('saveBtn').disabled = true;
+  $('saveBtn').textContent = 'Menyimpan...';
+
+  let result;
+
+  if(editing) {
+    result = await db.from('tournaments')
+      .update(record)
+      .eq('id', $('editId').value);
+  } else {
+    result = await db.from('tournaments').insert([record]);
+  }
+
+  $('saveBtn').disabled = false;
+  $('saveBtn').textContent = 'Simpan Turnamen';
+
+  if(result.error) {
+    showMessage('Gagal menyimpan: ' + result.error.message);
+    return;
+  }
+
+  showMessage(editing ? 'Turnamen berhasil diperbarui!' :
+    'Turnamen berhasil ditambahkan!', true);
+
+  resetForm();
+  await loadTournaments();
+});
+
+function editTournament(t) {
+  editing = true;
+  $('editId').value = t.id;
+  $('nama').value = t.nama_turnamen || '';
+  $('mulai').value = t.tanggal_mulai || '';
+  $('selesai').value = t.tanggal_selesai || '';
+  $('lokasi').value = t.lokasi || '';
+  $('status').value = t.status || 'akan datang';
+  $('keterangan').value = t.keterangan || '';
+  $('formTitle').textContent = '✏️ Edit Turnamen';
+  $('saveBtn').textContent = 'Simpan Perubahan';
+  $('cancelBtn').classList.remove('hidden');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function resetForm() {
+  editing = false;
+  $('form').reset();
+  $('editId').value = '';
+  $('formTitle').textContent = '➕ Tambah Turnamen';
+  $('saveBtn').textContent = 'Simpan Turnamen';
+  $('cancelBtn').classList.add('hidden');
+}
+
+$('cancelBtn').addEventListener('click', resetForm);
+
+async function deleteTournament(id,nama) {
+  if(!confirm('Yakin ingin menghapus turnamen "' + nama + '"?')) return;
+
+  const {error} = await db.from('tournaments').delete().eq('id',id);
+
+  if(error) {
+    alert('Gagal menghapus: ' + error.message);
+    return;
+  }
+
+  alert('Turnamen berhasil dihapus.');
+  await loadTournaments();
+}
+
+init();
+</script>
+</body>
+  </html>
