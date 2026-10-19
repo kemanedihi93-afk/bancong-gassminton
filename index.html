@@ -2,79 +2,139 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#111111">
-<meta name="description" content="BANCONG GASSMINTON Datar Bancong. Bersama berolahraga, menjaga kesehatan, mempererat persaudaraan, dan meraih prestasi.">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#101010">
+<meta name="description" content="BANCONG GASSMINTON Datar Bancong — Bersatu, bergerak, sehat, dan berprestasi.">
 <title>BANCONG GASSMINTON — Datar Bancong</title>
 
 <style>
 :root {
-  --merah: #ed2525;
-  --hitam: #101010;
+  --red: #ed2525;
+  --dark: #101010;
   --panel: #1d1d1d;
-  --putih: #ffffff;
-  --abu: #c9c9c9;
-  --garis: #383838;
+  --white: #ffffff;
+  --gray: #c9c9c9;
+  --line: #383838;
 }
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 90px;
 }
 
 body {
   margin: 0;
   font-family: Arial, Helvetica, sans-serif;
-  color: var(--putih);
-  background: var(--hitam);
-  line-height: 1.65;
+  background: var(--dark);
+  color: var(--white);
+  line-height: 1.6;
 }
 
 a {
+  color: inherit;
   text-decoration: none;
 }
 
-.bar {
-  padding: 11px;
+.topbar {
+  padding: 9px 12px;
   text-align: center;
   background: #080808;
-  border-bottom: 1px solid #333;
+  border-bottom: 1px solid var(--line);
   color: #ff7777;
   font-size: 11px;
   font-weight: bold;
-  letter-spacing: 2px;
+  letter-spacing: 1.5px;
 }
 
+/* MENU NAVIGASI */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 4%;
+  background: rgba(16, 16, 16, .97);
+  border-bottom: 2px solid var(--red);
+  backdrop-filter: blur(10px);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.brand-icon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 2px solid var(--red);
+  border-radius: 50%;
+  font-size: 22px;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.nav-links a {
+  padding: 8px 10px;
+  border-radius: 7px;
+  color: #ddd;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.nav-links a:hover {
+  background: var(--red);
+  color: white;
+}
+
+.nav-links .login-link {
+  background: var(--red);
+  color: white;
+}
+
+/* HERO */
 .hero {
-  padding: 42px 18px;
+  padding: 45px 18px;
   text-align: center;
-  background: linear-gradient(140deg, #f02b2b, #720000 50%, #111111);
+  background: linear-gradient(140deg, #f02b2b, #720000 52%, #111);
   border-bottom: 4px solid white;
 }
 
 .logo {
   display: grid;
   place-items: center;
-  width: 90px;
-  height: 90px;
-  margin: 0 auto 18px;
+  width: 88px;
+  height: 88px;
+  margin: 0 auto 17px;
   border: 3px solid white;
   border-radius: 50%;
   background: #111;
-  font-size: 46px;
+  font-size: 45px;
 }
 
 .hero h1 {
   margin: 0;
-  font-size: clamp(28px, 7vw, 43px);
+  font-size: clamp(29px, 6vw, 46px);
   font-weight: 900;
-  line-height: 1.15;
+  line-height: 1.12;
 }
 
-.tempat {
+.place {
   margin: 8px 0;
   font-weight: bold;
   letter-spacing: 5px;
@@ -88,93 +148,143 @@ a {
 }
 
 .hero-text {
-  max-width: 550px;
+  max-width: 600px;
   margin: 15px auto 0;
   color: #ffe8e8;
   font-size: 15px;
 }
 
-.tombol {
+.buttons {
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 25px;
+  gap: 10px;
+  margin-top: 24px;
 }
 
 .btn {
   display: inline-block;
-  padding: 12px 19px;
+  padding: 12px 18px;
+  border: 1px solid transparent;
   border-radius: 9px;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: bold;
+  text-align: center;
+  cursor: pointer;
 }
 
-.btn-putih {
+.btn-white {
   background: white;
   color: #111;
 }
 
-.btn-hitam {
+.btn-dark {
   background: #111;
   color: white;
-  border: 1px solid white;
+  border-color: white;
 }
 
+/* KONTEN */
 main {
-  width: min(100% - 28px, 900px);
+  width: min(100% - 28px, 1050px);
   margin: 25px auto;
 }
 
-.bagian {
+.section {
   margin-bottom: 22px;
   padding: 20px;
   background: var(--panel);
-  border: 1px solid var(--garis);
+  border: 1px solid var(--line);
   border-radius: 15px;
 }
 
-.judul-bagian {
-  margin: 0 0 14px;
-  padding-bottom: 12px;
+.section-title {
+  margin: 0 0 16px;
+  padding-bottom: 11px;
   border-bottom: 1px solid #414141;
   font-size: 21px;
 }
 
-.sambutan {
+.welcome {
   background: linear-gradient(130deg, #351010, #1b1b1b);
   border-color: #562020;
 }
 
-.sambutan h2 {
+.welcome h2 {
   margin-top: 0;
   color: #ff6464;
   font-size: 23px;
-  line-height: 1.4;
 }
 
-.sambutan p {
+.welcome p {
   margin-bottom: 0;
   color: #e4e4e4;
 }
 
-.kartu {
+/* KARTU FITUR */
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.feature {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 18px;
+  background: #242424;
+  border: 1px solid #414141;
+  border-top: 4px solid var(--red);
+  border-radius: 12px;
+  transition: transform .2s, background .2s;
+}
+
+.feature:hover {
+  transform: translateY(-3px);
+  background: #303030;
+}
+
+.feature-icon {
+  margin-bottom: 9px;
+  font-size: 30px;
+}
+
+.feature h3 {
+  margin: 0 0 7px;
+  font-size: 16px;
+}
+
+.feature p {
+  flex-grow: 1;
+  margin: 0 0 14px;
+  color: #c8c8c8;
+  font-size: 13px;
+}
+
+.feature-link {
+  color: #ff7777;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+/* JADWAL DAN TURNAMEN */
+.card {
   margin: 13px 0;
   padding: 16px;
   background: #282828;
   border: 1px solid #3a3a3a;
-  border-left: 4px solid var(--merah);
+  border-left: 4px solid var(--red);
   border-radius: 10px;
   overflow-wrap: anywhere;
 }
 
-.kartu h3 {
+.card h3 {
   margin: 0 0 12px;
   font-size: 17px;
-  line-height: 1.4;
 }
 
-.rincian {
+.detail {
   display: flex;
   gap: 8px;
   margin: 8px 0;
@@ -186,7 +296,7 @@ main {
   color: #aaa;
 }
 
-.nilai {
+.value {
   min-width: 0;
   color: #eee;
   overflow-wrap: anywhere;
@@ -202,59 +312,61 @@ main {
   font-weight: bold;
 }
 
-.kosong {
-  color: var(--abu);
-  text-align: center;
+.empty {
   padding: 15px 5px;
+  color: var(--gray);
+  text-align: center;
 }
 
 .error {
   color: #ff8585;
 }
 
-.manfaat {
+/* MANFAAT */
+.benefit-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 }
 
-.manfaat-item {
+.benefit {
   padding: 15px;
   background: #282828;
   border: 1px solid #3a3a3a;
   border-radius: 11px;
 }
 
-.manfaat-item strong {
+.benefit strong {
   display: block;
   margin-bottom: 5px;
   color: #ff6767;
 }
 
-.manfaat-item p {
+.benefit p {
   margin: 0;
   color: #d4d4d4;
   font-size: 13px;
 }
 
-.ajakan {
-  padding: 25px 18px;
+/* AJAKAN DAN FOOTER */
+.callout {
+  padding: 26px 18px;
   text-align: center;
   background: linear-gradient(135deg, #b60000, #2b0808);
   border-radius: 15px;
 }
 
-.ajakan h2 {
+.callout h2 {
   margin: 0 0 8px;
   font-size: 25px;
 }
 
-.ajakan p {
+.callout p {
   margin: 0;
   color: #ffe5e5;
 }
 
-.ajakan .btn {
+.callout .btn {
   margin-top: 18px;
 }
 
@@ -263,12 +375,10 @@ footer {
   padding: 25px 15px;
   text-align: center;
   background: #080808;
-  border-top: 3px solid var(--merah);
+  border-top: 3px solid var(--red);
 }
 
-footer strong {
-  font-size: 16px;
-}
+footer strong { font-size: 16px; }
 
 footer p {
   margin: 5px 0;
@@ -276,34 +386,63 @@ footer p {
   font-size: 12px;
 }
 
-@media (max-width: 480px) {
-  .hero {
-    padding: 32px 14px;
+@media (max-width: 760px) {
+  .navbar {
+    align-items: flex-start;
+    flex-direction: column;
   }
 
-  .tempat {
+  .nav-links {
+    justify-content: flex-start;
+    width: 100%;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 5px;
+  }
+
+  .nav-links a {
+    flex: 0 0 auto;
+  }
+
+  .feature-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .hero { padding: 32px 14px; }
+
+  .place {
     font-size: 14px;
     letter-spacing: 4px;
   }
 
-  .tombol {
+  .buttons {
     flex-direction: column;
   }
 
-  .btn {
-    width: 100%;
+  .buttons .btn { width: 100%; }
+
+  .section { padding: 15px; }
+
+  .feature-grid,
+  .benefit-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
   }
 
-  .bagian {
-    padding: 15px;
-  }
+  .feature { padding: 12px; }
+  .feature-icon { font-size: 25px; }
+  .feature h3 { font-size: 14px; }
+  .feature p { font-size: 12px; }
 
-  .manfaat {
+  .label { flex-basis: 98px; }
+}
+
+@media (max-width: 350px) {
+  .feature-grid,
+  .benefit-grid {
     grid-template-columns: 1fr;
-  }
-
-  .label {
-    flex-basis: 98px;
   }
 }
 </style>
@@ -311,15 +450,32 @@ footer p {
 
 <body>
 
-<div class="bar">
+<div class="topbar">
   KOMUNITAS OLAHRAGA • DATAR BANCONG
 </div>
 
-<header class="hero">
+<nav class="navbar" aria-label="Navigasi utama">
+  <a class="brand" href="index.html">
+    <span class="brand-icon">🏸</span>
+    <span>BANCONG<br>GASSMINTON</span>
+  </a>
+
+  <div class="nav-links">
+    <a href="index.html">🏠 Beranda</a>
+    <a href="members.html">👥 Anggota</a>
+    <a href="galeri.html">📸 Galeri</a>
+    <a href="schedules.html">📅 Jadwal</a>
+    <a href="tournaments.html">🏆 Turnamen</a>
+    <a href="pengumuman.html">📢 Pengumuman</a>
+    <a class="login-link" href="anggota-login.html">🔐 Login</a>
+  </div>
+</nav>
+
+<header class="hero" id="beranda">
   <div class="logo">🏸</div>
 
   <h1>BANCONG<br>GASSMINTON</h1>
-  <p class="tempat">DATAR BANCONG</p>
+  <p class="place">DATAR BANCONG</p>
 
   <p class="slogan">
     BERSATU • BERGERAK • SEHAT • BERPRESTASI
@@ -330,21 +486,20 @@ footer p {
     persaudaraan, kebersamaan, dan semangat untuk terus maju!
   </p>
 
-  <nav class="tombol">
-    <a class="btn btn-putih" href="daftar-anggota.html">
+  <div class="buttons">
+    <a class="btn btn-white" href="daftar-anggota.html">
       👥 DAFTAR ANGGOTA
     </a>
-    <a class="btn btn-hitam" href="anggota-login.html">
+    <a class="btn btn-dark" href="anggota-login.html">
       🔐 LOGIN ANGGOTA
     </a>
-  </nav>
+  </div>
 </header>
 
 <main>
 
-  <section class="bagian sambutan">
+  <section class="section welcome">
     <h2>💪 Sehat Badannya, Kuat Persaudaraannya!</h2>
-
     <p>
       Selamat datang di BANCONG GASSMINTON!
       Di sini kita bukan hanya mengejar kemenangan,
@@ -355,74 +510,127 @@ footer p {
     </p>
   </section>
 
-  <section class="bagian">
-    <h2 class="judul-bagian">❤️ Mengapa GASSMINTON?</h2>
+  <section class="section" id="fitur">
+    <h2 class="section-title">✨ Jelajahi Fitur Komunitas</h2>
 
-    <div class="manfaat">
-      <div class="manfaat-item">
+    <div class="feature-grid">
+
+      <a class="feature" href="members.html">
+        <span class="feature-icon">👥</span>
+        <h3>Data Anggota</h3>
+        <p>Lihat daftar anggota yang telah terdaftar di komunitas.</p>
+        <span class="feature-link">BUKA FITUR →</span>
+      </a>
+
+      <a class="feature" href="galeri.html">
+        <span class="feature-icon">📸</span>
+        <h3>Galeri Foto</h3>
+        <p>Dokumentasi latihan, kebersamaan, dan kegiatan komunitas.</p>
+        <span class="feature-link">BUKA FITUR →</span>
+      </a>
+
+      <a class="feature" href="schedules.html">
+        <span class="feature-icon">📅</span>
+        <h3>Jadwal Kegiatan</h3>
+        <p>Periksa jadwal latihan dan kegiatan badminton.</p>
+        <span class="feature-link">BUKA FITUR →</span>
+      </a>
+
+      <a class="feature" href="tournaments.html">
+        <span class="feature-icon">🏆</span>
+        <h3>Turnamen</h3>
+        <p>Informasi pertandingan dan kegiatan kompetisi.</p>
+        <span class="feature-link">BUKA FITUR →</span>
+      </a>
+
+      <a class="feature" href="cash.html">
+        <span class="feature-icon">💰</span>
+        <h3>Kas Komunitas</h3>
+        <p>Menu pencatatan keuangan untuk pengguna berwenang.</p>
+        <span class="feature-link">BUKA FITUR →</span>
+      </a>
+
+      <a class="feature" href="arisan.html">
+        <span class="feature-icon">🤝</span>
+        <h3>Arisan</h3>
+        <p>Pengelolaan data dan pembayaran arisan.</p>
+        <span class="feature-link">BUKA FITUR →</span>
+      </a>
+
+      <a class="feature" href="pengumuman.html">
+        <span class="feature-icon">📢</span>
+        <h3>Pengumuman</h3>
+        <p>Informasi terbaru dan pemberitahuan komunitas.</p>
+        <span class="feature-link">BUKA FITUR →</span>
+      </a>
+
+      <a class="feature" href="anggota-login.html">
+        <span class="feature-icon">🔐</span>
+        <h3>Login Anggota</h3>
+        <p>Masuk untuk mengakses layanan anggota.</p>
+        <span class="feature-link">MASUK SEKARANG →</span>
+      </a>
+
+      <a class="feature" href="admin.html">
+        <span class="feature-icon">🛡️</span>
+        <h3>Admin</h3>
+        <p>Pengelolaan data khusus administrator.</p>
+        <span class="feature-link">HALAMAN ADMIN →</span>
+      </a>
+
+    </div>
+  </section>
+
+  <section class="section">
+    <h2 class="section-title">❤️ Mengapa GASSMINTON?</h2>
+
+    <div class="benefit-grid">
+      <div class="benefit">
         <strong>💪 HIDUP LEBIH SEHAT</strong>
-        <p>
-          Berolahraga secara rutin membantu menjaga kebugaran
-          tubuh dan membuat kita lebih aktif.
-        </p>
+        <p>Berolahraga rutin membantu menjaga kebugaran dan membuat kita lebih aktif.</p>
       </div>
 
-      <div class="manfaat-item">
+      <div class="benefit">
         <strong>🤝 TAMBAH SAUDARA</strong>
-        <p>
-          Menjalin persahabatan, mempererat silaturahmi,
-          dan menjaga kekompakan warga.
-        </p>
+        <p>Menjalin persahabatan, mempererat silaturahmi, dan menjaga kekompakan.</p>
       </div>
 
-      <div class="manfaat-item">
+      <div class="benefit">
         <strong>🏸 TERUS BERKEMBANG</strong>
-        <p>
-          Berlatih bersama, belajar dari pengalaman,
-          dan meningkatkan kemampuan bermain.
-        </p>
+        <p>Berlatih bersama, belajar dari pengalaman, dan meningkatkan kemampuan.</p>
       </div>
 
-      <div class="manfaat-item">
+      <div class="benefit">
         <strong>🏆 RAIH PRESTASI</strong>
-        <p>
-          Junjung sportivitas, saling menyemangati,
-          dan berjuang meraih prestasi bersama.
-        </p>
+        <p>Menjunjung sportivitas dan berjuang meraih prestasi bersama.</p>
       </div>
     </div>
   </section>
 
-  <section class="bagian">
-    <h2 class="judul-bagian">📅 Jadwal Badminton</h2>
-
-    <div id="schedules" class="kosong">
+  <section class="section" id="jadwal">
+    <h2 class="section-title">📅 Jadwal Badminton</h2>
+    <div id="schedules" class="empty">
       Sedang mengambil jadwal dari database...
     </div>
   </section>
 
-  <section class="bagian">
-    <h2 class="judul-bagian">🏆 Informasi Turnamen</h2>
-
-    <div id="tournaments" class="kosong">
+  <section class="section" id="turnamen">
+    <h2 class="section-title">🏆 Informasi Turnamen</h2>
+    <div id="tournaments" class="empty">
       Sedang mengambil informasi turnamen...
     </div>
   </section>
 
-  <section class="ajakan">
+  <section class="callout">
     <h2>🔥 AYO GASS TERUS!</h2>
-
     <p>
-      Jangan cuma jadi penonton!
-      Mari berkeringat bersama, tertawa bersama,
-      sehat bersama, dan maju bersama.
+      Jangan cuma jadi penonton! Mari berkeringat bersama,
+      tertawa bersama, sehat bersama, dan maju bersama.
     </p>
-
-    <p style="margin-top:12px;font-weight:bold;">
+    <p style="margin-top:12px;font-weight:bold">
       SEHAT • KOMPAK • SPORTIF • BERPRESTASI
     </p>
-
-    <a class="btn btn-putih" href="daftar-anggota.html">
+    <a class="btn btn-white" href="daftar-anggota.html">
       GABUNG SEKARANG 🏸
     </a>
   </section>
@@ -467,9 +675,7 @@ function formatTanggal(tanggal) {
     String(tanggal).slice(0, 10) + "T00:00:00"
   );
 
-  if (Number.isNaN(hasil.getTime())) {
-    return aman(tanggal);
-  }
+  if (Number.isNaN(hasil.getTime())) return aman(tanggal);
 
   return hasil.toLocaleDateString("id-ID", {
     day: "numeric",
@@ -479,19 +685,17 @@ function formatTanggal(tanggal) {
 }
 
 function tambahRincian(kartu, label, nilai, ikon) {
-  if (nilai === null || nilai === undefined || nilai === "") {
-    return;
-  }
+  if (nilai === null || nilai === undefined || nilai === "") return;
 
   const baris = document.createElement("div");
-  baris.className = "rincian";
+  baris.className = "detail";
 
   const namaLabel = document.createElement("span");
   namaLabel.className = "label";
   namaLabel.textContent = ikon + " " + label;
 
   const isi = document.createElement("span");
-  isi.className = "nilai";
+  isi.className = "value";
   isi.textContent = aman(nilai);
 
   baris.append(namaLabel, isi);
@@ -500,7 +704,7 @@ function tambahRincian(kartu, label, nilai, ikon) {
 
 function buatKartu(judul, rincian, status = null) {
   const kartu = document.createElement("article");
-  kartu.className = "kartu";
+  kartu.className = "card";
 
   const heading = document.createElement("h3");
   heading.textContent = judul || "Informasi kegiatan";
@@ -512,7 +716,7 @@ function buatKartu(judul, rincian, status = null) {
 
   if (status) {
     const baris = document.createElement("div");
-    baris.className = "rincian";
+    baris.className = "detail";
 
     const label = document.createElement("span");
     label.className = "label";
@@ -547,6 +751,7 @@ async function muatJadwal() {
     tempat.replaceChildren();
 
     if (!data || data.length === 0) {
+      tempat.className = "empty";
       tempat.textContent = "Belum ada jadwal yang tersedia.";
       return;
     }
@@ -557,9 +762,7 @@ async function muatJadwal() {
       tempat.appendChild(
         buatKartu(item.judul, [
           ["Tanggal", formatTanggal(item.tanggal), "📅"],
-          ["Waktu", item.waktu
-            ? String(item.waktu).slice(0, 5)
-            : "", "🕒"],
+          ["Waktu", item.waktu ? String(item.waktu).slice(0, 5) : "", "🕒"],
           ["Lokasi", item.lokasi, "📍"],
           ["Keterangan", item.keterangan, "📝"]
         ])
@@ -570,7 +773,7 @@ async function muatJadwal() {
     tempat.replaceChildren();
 
     const pesan = document.createElement("p");
-    pesan.className = "kosong error";
+    pesan.className = "empty error";
     pesan.textContent =
       "Jadwal belum dapat dimuat. Periksa koneksi dan akses tabel schedules di Supabase.";
 
@@ -593,6 +796,7 @@ async function muatTurnamen() {
     tempat.replaceChildren();
 
     if (!data || data.length === 0) {
+      tempat.className = "empty";
       tempat.textContent = "Belum ada informasi turnamen.";
       return;
     }
@@ -620,7 +824,7 @@ async function muatTurnamen() {
     tempat.replaceChildren();
 
     const pesan = document.createElement("p");
-    pesan.className = "kosong error";
+    pesan.className = "empty error";
     pesan.textContent =
       "Informasi turnamen belum dapat dimuat. Periksa akses tabel tournaments di Supabase.";
 
@@ -633,4 +837,4 @@ muatTurnamen();
 </script>
 
 </body>
-</html>
+  </html>
