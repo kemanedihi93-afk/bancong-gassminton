@@ -3,424 +3,132 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#101010">
 <title>Galeri | BANCONG GASSMINTON</title>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <style>
-:root {
-  --red: #ed2638;
-  --bg: #101010;
-  --panel: #1c1c1c;
-  --white: #fff;
-  --muted: #bbb;
-  --border: #363636;
+:root{
+  --red:#ed2638;--red-dark:#9f1725;--bg:#101010;--panel:#1b1b1b;
+  --panel2:#242424;--white:#fff;--muted:#c7c7c7;--border:#3b3b3b;
+  --green:#9be7ae;
 }
-
-* {
-  box-sizing: border-box;
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:radial-gradient(ellipse at top,#211316 0,#101010 48%);color:var(--white);font-family:Arial,Helvetica,sans-serif;font-size:16px}
+header{position:sticky;top:0;z-index:20;background:rgba(19,19,19,.96);backdrop-filter:blur(12px);border-bottom:2px solid var(--red);padding:16px 5%}
+nav{display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap}
+.brand{color:white;font-size:clamp(20px,2.5vw,25px);font-weight:1000;letter-spacing:.5px;text-decoration:none}
+.brand span,.red{color:var(--red)}
+.nav-links{display:flex;flex-wrap:wrap;gap:16px}
+.nav-links a{color:#f0f0f0;font-size:15px;font-weight:700;text-decoration:none}
+.nav-links a:hover{color:#ff7c87}
+main{max-width:1180px;margin:auto;padding:24px 18px 64px}
+.hero{text-align:center;padding:48px 10px 34px}
+.eyebrow{display:inline-block;color:#ff9aa3;border:1px solid #6e2730;background:#291619;border-radius:30px;padding:8px 14px;font-size:14px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase}
+.hero h1{margin:18px 0 12px;font-size:clamp(36px,7vw,62px);font-weight:1000;letter-spacing:-1.3px;line-height:1.05;text-shadow:0 5px 24px #000}
+.hero p{max-width:700px;margin:0 auto 22px;color:#dedede;font-size:17px;line-height:1.8}
+.btn{display:inline-flex;justify-content:center;align-items:center;gap:8px;padding:13px 18px;border:1px solid transparent;border-radius:11px;background:linear-gradient(135deg,#ff3548,#c9182b);color:white;font-size:15px;font-weight:800;cursor:pointer;transition:transform .15s,filter .15s}
+.btn:hover{filter:brightness(1.12);transform:translateY(-1px)}
+.btn:disabled{opacity:.6;cursor:wait;transform:none}
+.panel{margin:22px 0;padding:24px;border:1px solid var(--border);border-radius:18px;background:linear-gradient(145deg,#202020,#171717);box-shadow:0 14px 35px #0003}
+.hidden{display:none!important}
+.panel h2,.section-heading{margin:0 0 12px;font-size:clamp(23px,4vw,30px);font-weight:900;letter-spacing:-.3px}
+form{display:grid;gap:16px}
+label{display:block;margin-bottom:8px;color:#f1f1f1;font-size:16px;font-weight:700}
+input,textarea,select{width:100%;padding:14px;border:1px solid #494949;border-radius:10px;background:#111;color:white;font:inherit;font-size:16px}
+input:focus,textarea:focus,select:focus{outline:2px solid #ed263877;border-color:var(--red)}
+input[type=file]{padding:11px}
+textarea{min-height:100px;resize:vertical}
+.small{color:var(--muted);font-size:15px;line-height:1.7}
+#status{margin-top:14px;line-height:1.7;overflow-wrap:anywhere;font-size:15px}
+.section-heading{margin-top:38px}
+.filters{display:flex;gap:10px;flex-wrap:wrap;margin:20px 0 24px}
+.filters button{padding:11px 16px;border:1px solid #484848;border-radius:30px;background:#252525;color:white;font-size:15px;font-weight:800;cursor:pointer}
+.filters button:hover{border-color:#ff7b86}
+.filters button.active{border-color:var(--red);background:var(--red);box-shadow:0 5px 18px #ed263833}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(245px,1fr));gap:19px}
+.card{min-width:0;overflow:hidden;border:1px solid #3c3c3c;border-radius:17px;background:linear-gradient(160deg,#222,#171717);box-shadow:0 10px 28px #0004;transition:transform .18s,border-color .18s}
+.card:hover{transform:translateY(-3px);border-color:#6a3037}
+.card img{display:block;width:100%;height:260px;object-fit:cover;background:#252525}
+.info{padding:16px}
+.info h3{margin:0 0 12px;font-size:21px;line-height:1.3;font-weight:900;overflow-wrap:anywhere}
+.info p{margin:10px 0;color:#d0d0d0;font-size:15px;line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere}
+.category-tag{display:inline-flex;align-items:center;gap:5px;padding:7px 11px;border-radius:20px;background:#392024;color:#ffc2c8;font-size:14px;font-weight:800}
+.photo-date{font-size:14px!important;color:#aaa!important}
+.card-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:15px}
+.action-btn{flex:1;min-width:95px;padding:10px 12px;border:1px solid #484848;border-radius:10px;background:#292929;color:white;font-size:15px;font-weight:800;cursor:pointer}
+.action-btn:hover{border-color:#ed2638}
+.action-btn.liked{background:#421b22;border-color:#ed2638;color:#ff8c98}
+.delete{margin-top:12px;background:#8c1824}
+.comments{margin-top:17px;padding-top:15px;border-top:1px solid #3a3a3a}
+.comments h4{margin:0 0 12px;font-size:17px}
+.comment-list{display:grid;gap:10px}
+.comment-item{padding:11px 12px;border-radius:10px;background:#111;border:1px solid #333}
+.comment-meta{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;color:#bcbcbc;font-size:13px}
+.comment-text{margin:0;color:#f0f0f0;font-size:15px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}
+.comment-delete{border:0;background:transparent;color:#ff8994;font-weight:800;cursor:pointer;font-size:13px}
+.comment-form{display:grid;gap:8px;margin-top:12px}
+.comment-form textarea{min-height:70px;padding:11px;font-size:15px}
+.comment-form .btn{width:100%;padding:11px}
+.comment-hint{margin:8px 0 0;color:#bcbcbc;font-size:14px;line-height:1.6}
+.empty{padding:35px 12px;color:var(--muted);text-align:center;line-height:1.8;font-size:16px}
+footer{padding:25px 15px;border-top:1px solid var(--border);color:#bbb;font-size:14px;text-align:center}
+@media(max-width:650px){
+ header{padding:14px 4%}nav{align-items:flex-start;flex-direction:column;gap:12px}
+ .nav-links{gap:11px 15px}.nav-links a{font-size:14px}
+ main{padding:16px 12px 45px}.hero{padding:30px 4px 24px}.hero p{font-size:16px}
+ .panel{padding:17px}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+ .card img{height:165px}.info{padding:11px}.info h3{font-size:18px}
+ .info p{font-size:14px}.category-tag{font-size:12px;padding:6px 8px}
+ .filters{gap:8px}.filters button{padding:10px 12px;font-size:14px}
+ .card-actions{gap:7px}.action-btn{min-width:0;padding:10px 6px;font-size:13px}
+ .comment-item{padding:9px}.comment-meta{font-size:12px;align-items:flex-start}
+ .comment-text{font-size:14px}.comment-form textarea{font-size:14px}
 }
-
-body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--white);
-  font-family: Arial, sans-serif;
-}
-
-header {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  background: #171717;
-  border-bottom: 2px solid var(--red);
-  padding: 15px 5%;
-}
-
-nav {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 15px;
-  flex-wrap: wrap;
-}
-
-.brand {
-  color: white;
-  font-size: 18px;
-  font-weight: 900;
-  text-decoration: none;
-}
-
-.brand span,
-.red {
-  color: var(--red);
-}
-
-.nav-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px;
-}
-
-.nav-links a {
-  color: #eee;
-  font-size: 14px;
-  text-decoration: none;
-}
-
-.nav-links a:hover {
-  color: var(--red);
-}
-
-main {
-  max-width: 1100px;
-  margin: auto;
-  padding: 25px 16px 60px;
-}
-
-.hero {
-  padding: 40px 10px;
-  text-align: center;
-}
-
-.hero h1 {
-  margin: 0 0 12px;
-  font-size: clamp(28px, 6vw, 45px);
-}
-
-.hero p {
-  color: var(--muted);
-  line-height: 1.7;
-}
-
-.btn {
-  padding: 12px 17px;
-  border: 0;
-  border-radius: 9px;
-  background: var(--red);
-  color: white;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.btn:hover {
-  filter: brightness(1.12);
-}
-
-.btn:disabled {
-  opacity: .6;
-  cursor: wait;
-}
-
-.panel {
-  margin: 20px 0;
-  padding: 20px;
-  border: 1px solid var(--border);
-  border-radius: 15px;
-  background: var(--panel);
-}
-
-.hidden {
-  display: none !important;
-}
-
-form {
-  display: grid;
-  gap: 14px;
-}
-
-label {
-  display: block;
-  margin-bottom: 7px;
-  color: #ddd;
-  font-size: 14px;
-}
-
-input,
-textarea,
-select {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #444;
-  border-radius: 8px;
-  background: #111;
-  color: white;
-  font: inherit;
-}
-
-input[type="file"] {
-  padding: 10px;
-}
-
-textarea {
-  min-height: 85px;
-  resize: vertical;
-}
-
-.small {
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.6;
-}
-
-#status {
-  margin-top: 14px;
-  line-height: 1.6;
-  overflow-wrap: anywhere;
-}
-
-.section-heading {
-  margin-top: 35px;
-}
-
-.filters {
-  display: flex;
-  gap: 9px;
-  flex-wrap: wrap;
-  margin: 20px 0;
-}
-
-.filters button {
-  padding: 10px 14px;
-  border: 1px solid #444;
-  border-radius: 30px;
-  background: #252525;
-  color: white;
-  cursor: pointer;
-}
-
-.filters button.active {
-  border-color: var(--red);
-  background: var(--red);
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 16px;
-}
-
-.card {
-  min-width: 0;
-  overflow: hidden;
-  border: 1px solid var(--border);
-  border-radius: 13px;
-  background: var(--panel);
-}
-
-.card img {
-  display: block;
-  width: 100%;
-  height: 230px;
-  object-fit: cover;
-  background: #252525;
-}
-
-.info {
-  padding: 14px;
-}
-
-.info h3 {
-  margin: 0 0 9px;
-  font-size: 17px;
-  overflow-wrap: anywhere;
-}
-
-.info p {
-  margin: 7px 0;
-  color: var(--muted);
-  font-size: 14px;
-  line-height: 1.5;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-}
-
-.category-tag {
-  display: inline-block;
-  padding: 5px 9px;
-  border-radius: 20px;
-  background: #392024;
-  color: #ffb7be;
-  font-size: 12px;
-}
-
-.delete {
-  margin-top: 10px;
-  background: #8c1824;
-}
-
-.empty {
-  padding: 30px 10px;
-  color: var(--muted);
-  text-align: center;
-  line-height: 1.6;
-}
-
-footer {
-  padding: 22px 15px;
-  border-top: 1px solid var(--border);
-  color: #aaa;
-  font-size: 13px;
-  text-align: center;
-}
-
-@media (max-width: 600px) {
-  header {
-    padding: 13px 4%;
-  }
-
-  nav {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .nav-links {
-    gap: 12px;
-  }
-
-  .hero {
-    padding: 25px 5px;
-  }
-
-  .panel {
-    padding: 15px;
-  }
-
-  .grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px;
-  }
-
-  .card img {
-    height: 155px;
-  }
-
-  .info {
-    padding: 10px;
-  }
-
-  .info h3 {
-    font-size: 15px;
-  }
-
-  .info p {
-    font-size: 12px;
-  }
-
-  .delete {
-    width: 100%;
-    padding: 9px 5px;
-    font-size: 12px;
-  }
-}
+@media(max-width:380px){.grid{grid-template-columns:1fr}.card img{height:230px}.info h3{font-size:20px}}
 </style>
 </head>
-
 <body>
-
 <header>
   <nav>
-    <a class="brand" href="index.html">
-      BANCONG <span>GASSMINTON</span>
-    </a>
-
+    <a class="brand" href="index.html">BANCONG <span>GASSMINTON</span></a>
     <div class="nav-links">
-      <a href="index.html">Beranda</a>
-      <a href="members.html">Anggota</a>
-      <a href="schedules.html">Jadwal</a>
-      <a href="tournaments.html">Turnamen</a>
+      <a href="index.html">Beranda</a><a href="members.html">Anggota</a>
+      <a href="schedules.html">Jadwal</a><a href="tournaments.html">Turnamen</a>
       <a href="anggota-login.html">Login Anggota</a>
     </div>
   </nav>
 </header>
-
 <main>
-
   <section class="hero">
+    <span class="eyebrow">🏸 Galeri Komunitas</span>
     <h1>GALERI <span class="red">GASSMINTON</span></h1>
-    <p>
-      Satu komunitas, satu semangat, banyak kenangan.<br>
-      Bagikan momen latihan, turnamen, arisan, dan kebersamaan kita!
-    </p>
-
-    <button class="btn" id="openUpload" type="button">
-      📸 Unggah Foto
-    </button>
-
-    <p class="small" id="accountInfo">
-      Pengunjung dapat melihat foto. Login diperlukan untuk mengunggah.
-    </p>
+    <p>Satu komunitas, satu semangat, banyak kenangan.<br>Bagikan momen latihan, turnamen, arisan, dan kebersamaan kita!</p>
+    <button class="btn" id="openUpload" type="button">📸 Unggah Foto</button>
+    <p class="small" id="accountInfo">Pengunjung dapat melihat foto. Login diperlukan untuk berinteraksi.</p>
   </section>
 
   <section class="panel hidden" id="uploadPanel">
     <h2>📸 Unggah Foto Kegiatan</h2>
-
-    <p class="small">
-      Unggah foto kegiatan komunitas. Hanya admin dan anggota yang
-      sudah disetujui yang dapat mengunggah. Maksimal 5 MB per foto.
-    </p>
-
+    <p class="small">Hanya admin dan anggota yang sudah disetujui yang dapat mengunggah. Maksimal 5 MB per foto.</p>
     <form id="uploadForm">
-
-      <div>
-        <label for="judul">Judul foto *</label>
-        <input
-          id="judul"
-          type="text"
-          maxlength="100"
-          required
-          placeholder="Contoh: Latihan Badminton Bersama">
-      </div>
-
-      <div>
-        <label for="kategori">Kategori album *</label>
-        <select id="kategori" required>
-          <option value="Latihan Badminton">🏸 Latihan Badminton</option>
-          <option value="Turnamen">🏆 Turnamen</option>
-          <option value="Kebersamaan">🤝 Kebersamaan</option>
-          <option value="Arisan">🎉 Arisan</option>
-          <option value="Kegiatan Lainnya">📸 Kegiatan Lainnya</option>
-        </select>
-      </div>
-
-      <div>
-        <label for="keterangan">Keterangan foto</label>
-        <textarea
-          id="keterangan"
-          maxlength="500"
-          placeholder="Ceritakan momen dalam foto..."></textarea>
-      </div>
-
-      <div>
-        <label for="foto">Pilih foto *</label>
-        <input
-          id="foto"
-          type="file"
-          accept="image/jpeg,image/png,image/webp"
-          required>
-        <p class="small">Format JPG, PNG, atau WebP. Maksimal 5 MB.</p>
-      </div>
-
-      <button class="btn" id="uploadButton" type="submit">
-        Unggah Sekarang
-      </button>
-
-      <button class="btn hidden" id="cancelUpload" type="button">
-        Batal
-      </button>
+      <div><label for="judul">Judul foto *</label><input id="judul" type="text" maxlength="100" required placeholder="Contoh: Latihan Badminton Bersama"></div>
+      <div><label for="kategori">Kategori album *</label><select id="kategori" required>
+        <option value="Latihan Badminton">🏸 Latihan Badminton</option><option value="Turnamen">🏆 Turnamen</option>
+        <option value="Kebersamaan">🤝 Kebersamaan</option><option value="Arisan">🎉 Arisan</option>
+        <option value="Kegiatan Lainnya">📸 Kegiatan Lainnya</option>
+      </select></div>
+      <div><label for="keterangan">Keterangan foto</label><textarea id="keterangan" maxlength="500" placeholder="Ceritakan momen dalam foto..."></textarea></div>
+      <div><label for="foto">Pilih foto *</label><input id="foto" type="file" accept="image/jpeg,image/png,image/webp" required><p class="small">Format JPG, PNG, atau WebP. Maksimal 5 MB.</p></div>
+      <button class="btn" id="uploadButton" type="submit">Unggah Sekarang</button>
+      <button class="btn hidden" id="cancelUpload" type="button">Batal</button>
     </form>
-
     <div id="status" role="status" aria-live="polite"></div>
   </section>
 
   <section>
     <h2 class="section-heading">Album Foto Kegiatan</h2>
-
-    <p class="small">
-      Pilih kategori untuk menemukan foto kegiatan yang kamu cari.
-    </p>
-
+    <p class="small">Pilih kategori, beri ❤️ suka, atau tinggalkan komentar untuk meramaikan galeri.</p>
     <div class="filters" id="filters">
       <button class="active" type="button" data-filter="all">Semua Foto</button>
       <button type="button" data-filter="Latihan Badminton">🏸 Latihan</button>
@@ -429,480 +137,147 @@ footer {
       <button type="button" data-filter="Arisan">🎉 Arisan</button>
       <button type="button" data-filter="Kegiatan Lainnya">📸 Lainnya</button>
     </div>
-
-    <div id="gallery" class="grid"></div>
-    <div id="empty" class="empty">Memuat foto...</div>
+    <div id="gallery" class="grid"></div><div id="empty" class="empty">Memuat foto...</div>
   </section>
-
 </main>
-
-<footer>
-  © 2026 BANCONG GASSMINTON · Kebersamaan dan sportivitas.
-</footer>
+<footer>© 2026 BANCONG GASSMINTON · Kebersamaan dan sportivitas.</footer>
 
 <script>
 "use strict";
+const SUPABASE_URL="https://vyrypjxuhiywvkeiewpd.supabase.co";
+const SUPABASE_KEY="sb_publishable_pRU3ZWYBomp_vQoUaI6Tzg_TbxqrYby";
+const BUCKET="galeri-gassminton";
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const openUpload=document.getElementById("openUpload"),uploadPanel=document.getElementById("uploadPanel");
+const uploadForm=document.getElementById("uploadForm"),uploadButton=document.getElementById("uploadButton");
+const cancelUpload=document.getElementById("cancelUpload"),statusBox=document.getElementById("status");
+const accountInfo=document.getElementById("accountInfo"),gallery=document.getElementById("gallery"),empty=document.getElementById("empty");
+let currentUser=null,isAdmin=false,isApproved=false,photos=[],activeFilter="all",likes=[],comments=[];
 
-const SUPABASE_URL =
-  "https://vyrypjxuhiywvkeiewpd.supabase.co";
-
-const SUPABASE_KEY =
-  "sb_publishable_pRU3ZWYBomp_vQoUaI6Tzg_TbxqrYby";
-
-const BUCKET = "galeri-gassminton";
-
-const db = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
-);
-
-const openUpload = document.getElementById("openUpload");
-const uploadPanel = document.getElementById("uploadPanel");
-const uploadForm = document.getElementById("uploadForm");
-const uploadButton = document.getElementById("uploadButton");
-const cancelUpload = document.getElementById("cancelUpload");
-const statusBox = document.getElementById("status");
-const accountInfo = document.getElementById("accountInfo");
-const gallery = document.getElementById("gallery");
-const empty = document.getElementById("empty");
-
-let currentUser = null;
-let isAdmin = false;
-let isApproved = false;
-let photos = [];
-let activeFilter = "all";
-
-function setStatus(message, isError = false) {
-  statusBox.textContent = message;
-  statusBox.style.color = isError ? "#ff8790" : "#9be7ae";
+function setStatus(message,isError=false){statusBox.textContent=message;statusBox.style.color=isError?"#ff8790":"#9be7ae"}
+function makeElement(tag,text="",className=""){const el=document.createElement(tag);el.textContent=text;if(className)el.className=className;return el}
+function categoryName(value){const valid=["Latihan Badminton","Turnamen","Kebersamaan","Arisan","Kegiatan Lainnya"];return valid.includes(value)?value:"Kegiatan Lainnya"}
+function categoryEmoji(value){return {"Latihan Badminton":"🏸","Turnamen":"🏆","Kebersamaan":"🤝","Arisan":"🎉","Kegiatan Lainnya":"📸"}[categoryName(value)]}
+function canInteract(){return Boolean(currentUser&&(isAdmin||isApproved))}
+function niceDate(value){const d=new Date(value);return Number.isNaN(d.getTime())?"":d.toLocaleDateString("id-ID",{day:"numeric",month:"short",year:"numeric"})}
+async function checkUser(){
+ const {data,error}=await db.auth.getSession();if(error)throw error;
+ currentUser=data.session?.user||null;isAdmin=Boolean(currentUser&&currentUser.app_metadata?.role==="admin");isApproved=false;
+ if(currentUser&&!isAdmin){
+  const {data:profile,error:profileError}=await db.from("member_profiles").select("status").eq("user_id",currentUser.id).maybeSingle();
+  if(profileError)console.error("Gagal membaca profil:",profileError);
+  isApproved=profile?.status==="approved";
+ }
+ openUpload.textContent=!currentUser?"🔐 Login untuk Unggah Foto":"📸 Unggah Foto";
+ accountInfo.textContent=!currentUser?"Kamu bisa melihat foto. Login diperlukan untuk menyukai, berkomentar, atau mengunggah.":isAdmin?"Login sebagai admin. Kamu bisa mengelola galeri dan komentar.":isApproved?"Anggota terverifikasi. Kamu bisa menyukai, berkomentar, dan mengunggah foto.":"Akun anggota belum disetujui. Kamu masih bisa melihat galeri.";
 }
-
-function makeElement(tag, text = "", className = "") {
-  const element = document.createElement(tag);
-  element.textContent = text;
-
-  if (className) {
-    element.className = className;
-  }
-
-  return element;
+async function requireInteraction(){
+ await checkUser();
+ if(!currentUser){alert("Silakan login terlebih dahulu untuk menyukai atau berkomentar.");window.location.href="anggota-login.html";return false}
+ if(!canInteract()){alert("Fitur ini hanya untuk admin dan anggota yang sudah disetujui. Hubungi admin komunitas.");return false}
+ return true;
 }
-
-function categoryName(value) {
-  const validCategories = [
-    "Latihan Badminton",
-    "Turnamen",
-    "Kebersamaan",
-    "Arisan",
-    "Kegiatan Lainnya"
-  ];
-
-  return validCategories.includes(value)
-    ? value
-    : "Kegiatan Lainnya";
-}
-
-function categoryEmoji(value) {
-  const icons = {
-    "Latihan Badminton": "🏸",
-    "Turnamen": "🏆",
-    "Kebersamaan": "🤝",
-    "Arisan": "🎉",
-    "Kegiatan Lainnya": "📸"
-  };
-
-  return icons[categoryName(value)] || "📸";
-}
-
-async function checkUser() {
-  const { data, error } = await db.auth.getSession();
-
-  if (error) throw error;
-
-  currentUser = data.session?.user || null;
-  isAdmin = Boolean(
-    currentUser &&
-    currentUser.app_metadata?.role === "admin"
-  );
-
-  isApproved = false;
-
-  if (currentUser && !isAdmin) {
-    const { data: profile, error: profileError } = await db
-      .from("member_profiles")
-      .select("status")
-      .eq("user_id", currentUser.id)
-      .maybeSingle();
-
-    if (profileError) {
-      console.error("Gagal membaca profil:", profileError);
-    }
-
-    isApproved = profile?.status === "approved";
-  }
-
-  if (!currentUser) {
-    openUpload.textContent = "🔐 Login untuk Unggah Foto";
-    accountInfo.textContent =
-      "Kamu bisa melihat foto. Login diperlukan untuk mengunggah.";
-  } else if (isAdmin) {
-    openUpload.textContent = "📸 Unggah Foto";
-    accountInfo.textContent = "Login sebagai admin.";
-  } else if (isApproved) {
-    openUpload.textContent = "📸 Unggah Foto";
-    accountInfo.textContent = "Anggota terverifikasi.";
-  } else {
-    openUpload.textContent = "📸 Unggah Foto";
-    accountInfo.textContent =
-      "Akun anggota belum disetujui untuk mengunggah foto.";
-  }
-}
-
-openUpload.addEventListener("click", async () => {
-  try {
-    await checkUser();
-
-    if (!currentUser) {
-      window.location.href = "anggota-login.html";
-      return;
-    }
-
-    if (!isAdmin && !isApproved) {
-      alert(
-        "Akun anggota kamu belum disetujui. Hubungi admin komunitas."
-      );
-      return;
-    }
-
-    uploadPanel.classList.toggle("hidden");
-
-    if (!uploadPanel.classList.contains("hidden")) {
-      uploadPanel.scrollIntoView({
-        behavior: "smooth",
-        block: "start"
-      });
-    }
-  } catch (error) {
-    console.error(error);
-    alert("Tidak dapat memeriksa akun. Coba muat ulang halaman.");
-  }
+openUpload.addEventListener("click",async()=>{
+ try{await checkUser();if(!currentUser){window.location.href="anggota-login.html";return}
+ if(!canInteract()){alert("Akun anggota kamu belum disetujui. Hubungi admin komunitas.");return}
+ uploadPanel.classList.toggle("hidden");if(!uploadPanel.classList.contains("hidden"))uploadPanel.scrollIntoView({behavior:"smooth",block:"start"});
+ }catch(e){console.error(e);alert("Tidak dapat memeriksa akun. Coba muat ulang halaman.")}
 });
+cancelUpload.addEventListener("click",()=>{uploadPanel.classList.add("hidden");uploadForm.reset();setStatus("")});
 
-cancelUpload.addEventListener("click", () => {
-  uploadPanel.classList.add("hidden");
-  uploadForm.reset();
-  setStatus("");
-});
-
-function renderPhotos() {
-  gallery.replaceChildren();
-
-  const filteredPhotos = photos.filter(photo => {
-    if (activeFilter === "all") return true;
-
-    return categoryName(photo.kategori) === activeFilter;
+async function loadEngagement(){
+ const [likeResult,commentResult]=await Promise.all([
+  db.from("galeri_likes").select("id,foto_id,user_id,created_at"),
+  db.from("galeri_comments").select("id,foto_id,user_id,isi,created_at").order("created_at",{ascending:true})
+ ]);
+ if(likeResult.error)console.error("Gagal memuat suka:",likeResult.error);
+ if(commentResult.error)console.error("Gagal memuat komentar:",commentResult.error);
+ likes=likeResult.error?[]:(likeResult.data||[]);
+ comments=commentResult.error?[]:(commentResult.data||[]);
+}
+function makeCommentForm(photo){
+ const form=makeElement("form","","comment-form");form.noValidate=true;
+ const input=document.createElement("textarea");input.maxLength=500;input.placeholder="Tulis komentar yang sopan...";input.setAttribute("aria-label","Tulis komentar");
+ const button=makeElement("button","Kirim Komentar","btn");button.type="submit";
+ const hint=makeElement("p",canInteract()?"Maksimal 500 karakter. Jaga komentar tetap sopan.":"Login dan persetujuan anggota diperlukan untuk berkomentar.","comment-hint");
+ form.append(input,button,hint);
+ form.addEventListener("submit",async e=>{
+  e.preventDefault();const isi=input.value.trim();if(!isi){alert("Komentar tidak boleh kosong.");return}
+  if(isi.length>500){alert("Komentar maksimal 500 karakter.");return}
+  button.disabled=true;button.textContent="Mengirim...";
+  try{
+   if(!await requireInteraction())return;
+   const {error}=await db.from("galeri_comments").insert({foto_id:photo.id,user_id:currentUser.id,isi});
+   if(error)throw error;
+   input.value="";await loadEngagement();renderPhotos();
+  }catch(err){console.error(err);alert("Komentar gagal dikirim. Pastikan akun sudah disetujui dan coba lagi.")}
+  finally{button.disabled=false;button.textContent="Kirim Komentar"}
+ });
+ return form;
+}
+async function deleteComment(comment){
+ if(!currentUser||!(isAdmin||comment.user_id===currentUser.id)){alert("Kamu tidak punya izin menghapus komentar ini.");return}
+ if(!confirm("Hapus komentar ini?"))return;
+ const {error}=await db.from("galeri_comments").delete().eq("id",comment.id);
+ if(error){console.error(error);alert("Komentar belum berhasil dihapus.");return}
+ await loadEngagement();renderPhotos();
+}
+async function toggleLike(photo){
+ try{
+  if(!await requireInteraction())return;
+  const existing=likes.find(x=>x.foto_id===photo.id&&x.user_id===currentUser.id);
+  if(existing){
+   const {error}=await db.from("galeri_likes").delete().eq("id",existing.id).eq("user_id",currentUser.id);
+   if(error)throw error;
+  }else{
+   const {error}=await db.from("galeri_likes").insert({foto_id:photo.id,user_id:currentUser.id});
+   if(error)throw error;
+  }
+  await loadEngagement();renderPhotos();
+ }catch(err){console.error(err);alert("Belum berhasil memberi suka. Pastikan akun sudah disetujui, lalu coba lagi.")}
+}
+function renderPhotos(){
+ gallery.replaceChildren();
+ const filtered=photos.filter(p=>activeFilter==="all"||categoryName(p.kategori)===activeFilter);
+ if(!filtered.length){empty.textContent=activeFilter==="all"?"Belum ada foto. Jadilah yang pertama berbagi momen!":"Belum ada foto dalam album ini.";empty.classList.remove("hidden");return}
+ empty.classList.add("hidden");
+ filtered.forEach(photo=>{
+  const card=document.createElement("article");card.className="card";
+  const image=document.createElement("img");const {data}=db.storage.from(BUCKET).getPublicUrl(photo.file_path);
+  image.src=data.publicUrl;image.alt=photo.judul||"Foto kegiatan GASSMINTON";image.loading="lazy";image.onerror=()=>{image.alt="Foto tidak dapat dimuat"};
+  const info=document.createElement("div");info.className="info";
+  info.appendChild(makeElement("h3",photo.judul||"Foto Kegiatan"));
+  const cat=categoryName(photo.kategori);info.appendChild(makeElement("span",categoryEmoji(cat)+" "+cat,"category-tag"));
+  info.appendChild(makeElement("p",photo.keterangan||"Dokumentasi kegiatan komunitas."));
+  if(photo.created_at)info.appendChild(makeElement("p","📅 Diunggah: "+niceDate(photo.created_at),"photo-date"));
+  const photoLikes=likes.filter(l=>l.foto_id===photo.id);
+  const liked=Boolean(currentUser&&photoLikes.some(l=>l.user_id===currentUser.id));
+  const actionRow=makeElement("div","","card-actions");
+  const likeButton=makeElement("button",(liked?"❤️ Disukai":"🤍 Suka")+" · "+photoLikes.length,"action-btn"+(liked?" liked":""));
+  likeButton.type="button";likeButton.setAttribute("aria-pressed",String(liked));likeButton.addEventListener("click",()=>toggleLike(photo));
+  const photoComments=comments.filter(c=>c.foto_id===photo.id);
+  const commentJump=makeElement("button","💬 Komentar · "+photoComments.length,"action-btn");commentJump.type="button";
+  commentJump.addEventListener("click",()=>{const section=card.querySelector(".comments");section.scrollIntoView({behavior:"smooth",block:"nearest"});const input=section.querySelector("textarea");if(input)input.focus()});
+  actionRow.append(likeButton,commentJump);info.appendChild(actionRow);
+  const commentSection=makeElement("section","","comments");commentSection.appendChild(makeElement("h4","💬 Komentar ("+photoComments.length+")"));
+  const list=makeElement("div","","comment-list");
+  if(!photoComments.length)list.appendChild(makeElement("p","Belum ada komentar. Yuk mulai percakapan yang positif!","comment-hint"));
+  photoComments.forEach(comment=>{
+   const item=makeElement("div","","comment-item");const meta=makeElement("div","","comment-meta");
+   // Nama dan email pengguna tidak ditampilkan; hanya label umum untuk menjaga privasi.
+   meta.appendChild(makeElement("span","Anggota · "+niceDate(comment.created_at)));
+   if(currentUser&&(isAdmin||comment.user_id===currentUser.id)){
+    const del=makeElement("button","Hapus","comment-delete");del.type="button";del.addEventListener("click",()=>deleteComment(comment));meta.appendChild(del);
+   }
+   item.append(meta,makeElement("p",comment.isi,"comment-text"));list.appendChild(item);
   });
-
-  if (filteredPhotos.length === 0) {
-    empty.textContent = activeFilter === "all"
-      ? "Belum ada foto. Jadilah yang pertama berbagi momen!"
-      : "Belum ada foto dalam album ini.";
-
-    empty.classList.remove("hidden");
-    return;
-  }
-
-  empty.classList.add("hidden");
-
-  filteredPhotos.forEach(photo => {
-    const card = document.createElement("article");
-    card.className = "card";
-
-    const image = document.createElement("img");
-    const { data } = db.storage
-      .from(BUCKET)
-      .getPublicUrl(photo.file_path);
-
-    image.src = data.publicUrl;
-    image.alt = photo.judul || "Foto kegiatan GASSMINTON";
-    image.loading = "lazy";
-
-    image.onerror = () => {
-      image.alt = "Foto tidak dapat dimuat";
-    };
-
-    const info = document.createElement("div");
-    info.className = "info";
-
-    info.appendChild(
-      makeElement("h3", photo.judul || "Foto Kegiatan")
-    );
-
-    const category = categoryName(photo.kategori);
-
-    info.appendChild(
-      makeElement(
-        "span",
-        categoryEmoji(category) + " " + category,
-        "category-tag"
-      )
-    );
-
-    info.appendChild(
-      makeElement(
-        "p",
-        photo.keterangan || "Dokumentasi kegiatan komunitas."
-      )
-    );
-
-    if (photo.created_at) {
-      const date = new Date(photo.created_at);
-
-      info.appendChild(
-        makeElement(
-          "p",
-          "Diunggah: " + date.toLocaleDateString("id-ID"),
-          "small"
-        )
-      );
-    }
-
-    if (isAdmin) {
-      const deleteButton = makeElement(
-        "button",
-        "🗑️ Hapus Foto",
-        "btn delete"
-      );
-
-      deleteButton.type = "button";
-      deleteButton.addEventListener("click", () => {
-        deletePhoto(photo);
-      });
-
-      info.appendChild(deleteButton);
-    }
-
-    card.append(image, info);
-    gallery.appendChild(card);
-  });
+  commentSection.appendChild(list);commentSection.appendChild(makeCommentForm(photo));info.appendChild(commentSection);
+  if(isAdmin){const del=makeElement("button","🗑️ Hapus Foto","btn delete");del.type="button";del.addEventListener("click",()=>deletePhoto(photo));info.appendChild(del)}
+  card.append(image,info);gallery.appendChild(card);
+ });
 }
-
-async function loadPhotos() {
-  empty.textContent = "Memuat foto...";
-  empty.classList.remove("hidden");
-
-  const { data, error } = await db
-    .from("galeri_foto")
-    .select("id,judul,keterangan,kategori,file_path,user_id,created_at")
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    console.error("Gagal memuat galeri:", error);
-
-    empty.textContent =
-      "Foto belum dapat dimuat. Periksa koneksi dan izin akses galeri.";
-
-    return;
-  }
-
-  photos = data || [];
-  renderPhotos();
-}
-
-document.querySelectorAll("[data-filter]").forEach(button => {
-  button.addEventListener("click", () => {
-    activeFilter = button.dataset.filter;
-
-    document.querySelectorAll("[data-filter]").forEach(item => {
-      item.classList.toggle("active", item === button);
-    });
-
-    renderPhotos();
-  });
-});
-
-uploadForm.addEventListener("submit", async event => {
-  event.preventDefault();
-
-  uploadButton.disabled = true;
-  setStatus("Memeriksa akun dan mengunggah foto...");
-
-  let uploadedPath = null;
-
-  try {
-    await checkUser();
-
-    if (!currentUser || (!isAdmin && !isApproved)) {
-      throw new Error(
-        "Akun kamu belum memiliki izin untuk mengunggah foto."
-      );
-    }
-
-    const file = document.getElementById("foto").files[0];
-    const judul = document.getElementById("judul").value.trim();
-    const kategori = categoryName(
-      document.getElementById("kategori").value
-    );
-    const keterangan = document
-      .getElementById("keterangan")
-      .value.trim();
-
-    if (!file) {
-      throw new Error("Pilih foto terlebih dahulu.");
-    }
-
-    const allowedTypes = [
-      "image/jpeg",
-      "image/png",
-      "image/webp"
-    ];
-
-    if (!allowedTypes.includes(file.type)) {
-      throw new Error("Gunakan file JPG, PNG, atau WebP.");
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      throw new Error("Ukuran foto maksimal 5 MB.");
-    }
-
-    if (!judul) {
-      throw new Error("Judul foto wajib diisi.");
-    }
-
-    const extension = {
-      "image/jpeg": "jpg",
-      "image/png": "png",
-      "image/webp": "webp"
-    }[file.type];
-
-    const uniqueName =
-      crypto.randomUUID() + "." + extension;
-
-    uploadedPath = currentUser.id + "/" + uniqueName;
-
-    const { error: storageError } = await db.storage
-      .from(BUCKET)
-      .upload(uploadedPath, file, {
-        contentType: file.type,
-        upsert: false
-      });
-
-    if (storageError) throw storageError;
-
-    const { error: insertError } = await db
-      .from("galeri_foto")
-      .insert({
-        judul,
-        kategori,
-        keterangan,
-        file_path: uploadedPath,
-        user_id: currentUser.id
-      });
-
-    if (insertError) {
-      const { error: cleanupError } = await db.storage
-        .from(BUCKET)
-        .remove([uploadedPath]);
-
-      if (cleanupError) {
-        console.error("Pembersihan file gagal:", cleanupError);
-      }
-
-      uploadedPath = null;
-      throw insertError;
-    }
-
-    uploadForm.reset();
-    setStatus("✅ Foto berhasil diunggah!");
-
-    await loadPhotos();
-
-    uploadPanel.classList.add("hidden");
-    document.querySelector('[data-filter="all"]').click();
-
-  } catch (error) {
-    console.error("Unggah foto gagal:", error);
-
-    setStatus(
-      "Gagal mengunggah: " +
-      (error.message || "Terjadi kesalahan."),
-      true
-    );
-  } finally {
-    uploadButton.disabled = false;
-  }
-});
-
-async function deletePhoto(photo) {
-  if (!isAdmin) {
-    alert("Hanya admin yang boleh menghapus foto.");
-    return;
-  }
-
-  const confirmed = confirm(
-    'Hapus foto "' + photo.judul + '"? Tindakan ini tidak dapat dibatalkan.'
-  );
-
-  if (!confirmed) return;
-
-  try {
-    const { error: rowError } = await db
-      .from("galeri_foto")
-      .delete()
-      .eq("id", photo.id);
-
-    if (rowError) throw rowError;
-
-    const { error: fileError } = await db.storage
-      .from(BUCKET)
-      .remove([photo.file_path]);
-
-    if (fileError) {
-      console.error(
-        "Data foto terhapus, tetapi file perlu diperiksa:",
-        fileError
-      );
-
-      alert(
-        "Informasi foto sudah dihapus, tetapi file penyimpanannya " +
-        "belum berhasil dihapus. Periksa Storage Supabase."
-      );
-    } else {
-      alert("Foto berhasil dihapus.");
-    }
-
-    await loadPhotos();
-
-  } catch (error) {
-    console.error("Hapus foto gagal:", error);
-
-    alert(
-      "Foto belum berhasil dihapus. Periksa izin admin dan coba lagi."
-    );
-  }
-}
-
-db.auth.onAuthStateChange(() => {
-  setTimeout(async () => {
-    try {
-      await checkUser();
-      renderPhotos();
-    } catch (error) {
-      console.error(error);
-    }
-  }, 0);
-});
-
-(async function init() {
-  try {
-    await checkUser();
-  } catch (error) {
-    console.error("Pemeriksaan akun gagal:", error);
-  }
-
-  await loadPhotos();
-})();
-</script>
-
-</body>
-</html>
+async function loadPhotos(){
+ empty.textContent="Memuat foto...";empty.classList.remove("hidden");
+ const {data,error}=await db.from("galeri_foto").select("id,judul,keterangan,kategori,file_path,user_id,created_at").order("created_at",{ascending:false});
+ if(error){console.error("Gagal memuat galeri:",error);empty.textContent="Foto belum dapat dimuat. Periksa koneksi dan izin akses galeri.";return}
+ photos=data||[
