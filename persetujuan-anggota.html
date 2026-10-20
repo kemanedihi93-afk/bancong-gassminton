@@ -1,121 +1,357 @@
-async function updateStatus(item, newStatus) {
-  if (busy) return;
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Persetujuan Anggota | Bancong Gassminton</title>
 
-  const action = newStatus === "approved"
-    ? "menyetujui"
-    : "menolak";
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  if (!confirm(
-    "Yakin ingin " + action +
-    " pendaftaran " + item.nama + "?"
-  )) {
-    return;
-  }
-
-  busy = true;
-  showMessage("Sedang memproses pendaftaran...");
-
-  try {
-    // Pastikan akun masih memiliki sesi admin.
-    const { data: sessionData, error: sessionError } =
-      await db.auth.getSession();
-
-    if (
-      sessionError ||
-      !sessionData.session ||
-      sessionData.session.user.app_metadata?.role !== "admin"
-    ) {
-      throw new Error("Sesi admin tidak valid. Silakan login kembali.");
+  <style>
+    * {
+      box-sizing: border-box;
     }
 
-    // Periksa apakah pendaftaran masih menunggu.
-    const { data: registration, error: readError } = await db
-      .from("member_registrations")
-      .select("id, nama, nomor_whatsapp, dusun, status, created_at")
-      .eq("id", item.id)
-      .eq("status", "pending")
-      .maybeSingle();
-
-    if (readError) throw readError;
-
-    if (!registration) {
-      showMessage(
-        "Pendaftaran sudah diproses atau tidak ditemukan."
-      );
-      await loadRegistrations();
-      return;
+    body {
+      margin: 0;
+      padding: 16px;
+      font-family: Arial, sans-serif;
+      background: #f1f5f9;
+      color: #172033;
     }
 
-    // Jika disetujui, masukkan ke tabel members terlebih dahulu.
-    if (newStatus === "approved") {
-      const { data: existingMember, error: findError } = await db
-        .from("members")
-        .select("id")
-        .eq("nomor_whatsapp", registration.nomor_whatsapp)
-        .limit(1);
+    .container {
+      max-width: 1000px;
+      margin: auto;
+    }
 
-      if (findError) {
-        throw new Error(
-          "Gagal memeriksa anggota: " + findError.message
-        );
+    .header {
+      background: #111827;
+      color: white;
+      padding: 24px;
+      border-radius: 14px;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 24px;
+    }
+
+    .header p {
+      margin-bottom: 0;
+      color: #d1d5db;
+    }
+
+    .box {
+      background: white;
+      padding: 18px;
+      border-radius: 14px;
+      box-shadow: 0 3px 12px #0000000d;
+      margin-bottom: 18px;
+    }
+
+    .status {
+      padding: 12px;
+      border-radius: 8px;
+      background: #eff6ff;
+      margin-bottom: 16px;
+      overflow-wrap: anywhere;
+      line-height: 1.5;
+    }
+
+    .card {
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 14px;
+      background: white;
+    }
+
+    .card h3 {
+      margin-top: 0;
+      margin-bottom: 12px;
+      overflow-wrap: anywhere;
+    }
+
+    .detail {
+      margin: 8px 0;
+      overflow-wrap: anywhere;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .badge.approved {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .badge.rejected {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    button {
+      border: 0;
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin: 8px 6px 0 0;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: wait;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0 14px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    .approve {
+      background: #15803d;
+      color: white;
+    }
+
+    .reject {
+      background: #dc2626;
+      color: white;
+    }
+
+    .refresh {
+      background: #1d4ed8;
+      color: white;
+    }
+
+    .back {
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    .logout {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .muted {
+      color: #64748b;
+      line-height: 1.5;
+    }
+
+    @media (min-width: 700px) {
+      .list {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
       }
-
-      // Jangan masukkan nomor WhatsApp yang sudah terdaftar.
-      if (!existingMember || existingMember.length === 0) {
-        const tanggalDaftar = registration.created_at
-          ? registration.created_at.slice(0, 10)
-          : new Date().toISOString().slice(0, 10);
-
-        const { error: insertError } = await db
-          .from("members")
-          .insert({
-            nama_anggota: registration.nama,
-            nomor_whatsapp: registration.nomor_whatsapp,
-            dusun: registration.dusun,
-            tanggal_pendaftaran: tanggalDaftar
-          });
-
-        if (insertError) {
-          throw new Error(
-            "Gagal menambahkan anggota: " + insertError.message
-          );
-        }
-      }
     }
+  </style>
+</head>
 
-    // Perbarui status pendaftaran setelah proses di atas berhasil.
-    const { data: updated, error: updateError } = await db
-      .from("member_registrations")
-      .update({ status: newStatus })
-      .eq("id", registration.id)
-      .eq("status", "pending")
-      .select("id");
+<body>
+  <main class="container">
 
-    if (updateError) {
-      throw new Error(
-        "Data anggota mungkin sudah tersimpan, tetapi status pendaftaran gagal diperbarui: " +
-        updateError.message
-      );
-    }
+    <header class="header">
+      <h1>🏸 BANCONG GASSMINTON</h1>
+      <p>Panel Persetujuan Anggota</p>
+    </header>
 
-    if (!updated || updated.length === 0) {
-      throw new Error(
-        "Status tidak berubah. Periksa kembali data pendaftaran."
-      );
-    }
+    <section id="loginBox" class="box">
+      <h2>Login Admin</h2>
 
-    showMessage(
-      newStatus === "approved"
-        ? "Pendaftaran " + registration.nama +
-          " disetujui dan diproses ke tabel anggota."
-        : "Pendaftaran " + registration.nama + " ditolak."
+      <p class="muted">
+        Masuk menggunakan akun admin yang sudah terdaftar.
+      </p>
+
+      <form id="loginForm">
+        <label for="email">Email admin</label>
+        <input
+          id="email"
+          type="email"
+          autocomplete="username"
+          required
+        >
+
+        <label for="password">Password</label>
+        <input
+          id="password"
+          type="password"
+          autocomplete="current-password"
+          required
+        >
+
+        <button class="approve" type="submit" id="loginBtn">
+          LOGIN
+        </button>
+      </form>
+    </section>
+
+    <section id="panel" class="hidden">
+
+      <div class="box">
+        <h2>Daftar Pendaftaran</h2>
+
+        <div id="message" class="status" role="status">
+          Memuat data...
+        </div>
+
+        <button class="refresh" id="refreshBtn">
+          MUAT ULANG
+        </button>
+
+        <button
+          class="back"
+          onclick="location.href='dashboard.html'"
+        >
+          KEMBALI KE DASHBOARD
+        </button>
+
+        <button class="logout" id="logoutBtn">
+          KELUAR
+        </button>
+      </div>
+
+      <div class="box">
+        <h2>Menunggu Persetujuan</h2>
+        <div id="pendingList" class="list"></div>
+      </div>
+
+      <div class="box">
+        <h2>Riwayat Pendaftaran</h2>
+        <div id="historyList" class="list"></div>
+      </div>
+
+    </section>
+  </main>
+
+  <script>
+    const SUPABASE_URL =
+      "https://vyrypjxuhiywvkeiewpd.supabase.co";
+
+    const SUPABASE_KEY =
+      "sb_publishable_pRU3ZWYBomp_vQoUaI6Tzg_TbxqrYby";
+
+    const db = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
     );
 
-    await loadRegistrations();
+    const loginBox = document.getElementById("loginBox");
+    const panel = document.getElementById("panel");
+    const message = document.getElementById("message");
+    const pendingList = document.getElementById("pendingList");
+    const historyList = document.getElementById("historyList");
+    const loginBtn = document.getElementById("loginBtn");
 
-  } catch (error) {
-    showMessage("Gagal memproses pendaftaran: " + error.message);
-  } finally {
-    busy = false;
-  }
-}
+    let busy = false;
+
+    function showMessage(text) {
+      message.textContent = text;
+    }
+
+    function safeText(value) {
+      return value == null || value === ""
+        ? "-"
+        : String(value);
+    }
+
+    async function checkAdmin() {
+      const { data, error } = await db.auth.getSession();
+
+      if (error) {
+        loginBox.classList.remove("hidden");
+        panel.classList.add("hidden");
+        alert("Gagal memeriksa sesi: " + error.message);
+        return false;
+      }
+
+      const user = data.session?.user;
+
+      if (!user) {
+        loginBox.classList.remove("hidden");
+        panel.classList.add("hidden");
+        return false;
+      }
+
+      if (user.app_metadata?.role !== "admin") {
+        await db.auth.signOut();
+
+        loginBox.classList.remove("hidden");
+        panel.classList.add("hidden");
+
+        alert(
+          "Akses ditolak. Akun ini belum memiliki peran admin."
+        );
+
+        return false;
+      }
+
+      loginBox.classList.add("hidden");
+      panel.classList.remove("hidden");
+
+      return true;
+    }
+
+    document.getElementById("loginForm").addEventListener(
+      "submit",
+      async function(event) {
+        event.preventDefault();
+
+        loginBtn.disabled = true;
+        loginBtn.textContent = "MEMERIKSA LOGIN...";
+
+        try {
+          const email =
+            document.getElementById("email").value.trim();
+
+          const password =
+            document.getElementById("password").value;
+
+          const { error } = await db.auth.signInWithPassword({
+            email,
+            password
+          });
+
+          if (error) {
+            throw new Error(error.message);
+          }
+
+          const isAdmin = await checkAdmin();
+
+          if (isAdmin) {
+            await loadRegistrations();
+          }
+
+        } catch (error) {
+          alert("Login gagal: " + error.message);
+        } finally {
+          loginBtn.disabled = false;
+          loginBtn.textContent = "LOGIN";
+        }
+      }
+    );
+
+    async function loadRegistrations() {
+      if (busy) return;
+
+      showMessage("Sedang memuat data pendaftaran...");
+
+      pendingList.replace
