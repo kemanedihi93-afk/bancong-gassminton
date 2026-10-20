@@ -16,7 +16,7 @@ body{
   width:100%;max-width:400px;background:#1d2935;
   padding:25px;border-radius:16px
 }
-h1{color:#ff4545;text-align:center}
+h1{color:#ff4545;text-align:center;font-size:25px}
 p{text-align:center;color:#cbd5e1}
 input,button{
   width:100%;padding:13px;margin-top:12px;
@@ -27,8 +27,10 @@ button{
   background:#e83232;color:white;border:0;
   font-weight:bold;cursor:pointer
 }
+button:disabled{opacity:.6;cursor:wait}
 a{color:#ff7777}
 #message{font-size:14px;overflow-wrap:anywhere}
+.forgot{text-align:right;font-size:14px;margin-top:12px}
 </style>
 </head>
 <body>
@@ -39,12 +41,18 @@ a{color:#ff7777}
   <form id="loginForm">
     <input id="email" type="email" placeholder="Alamat email"
       autocomplete="username" required>
+
     <input id="password" type="password" placeholder="Kata sandi"
       autocomplete="current-password" required>
+
+    <div class="forgot">
+      <a href="lupa-password.html">Lupa Password?</a>
+    </div>
+
     <button id="loginButton" type="submit">Masuk</button>
   </form>
 
-  <p id="message"></p>
+  <p id="message" role="status"></p>
   <p><a href="index.html">← Kembali ke Beranda</a></p>
 </div>
 
@@ -63,27 +71,31 @@ form.addEventListener('submit',async function(e){
   button.textContent='Memeriksa...';
   message.textContent='';
 
-  const email=document.getElementById('email').value.trim();
-  const password=document.getElementById('password').value;
+  try{
+    const email=document.getElementById('email').value.trim();
+    const password=document.getElementById('password').value;
 
-  const {data,error}=await db.auth.signInWithPassword({
-    email,password
-  });
+    const {data,error}=await db.auth.signInWithPassword({
+      email,password
+    });
 
-  button.disabled=false;
-  button.textContent='Masuk';
+    if(error){
+      message.style.color='#ff7777';
+      message.textContent='Login gagal. Periksa email dan kata sandi.';
+      return;
+    }
 
-  if(error){
+    if(data.user?.app_metadata?.role==='admin'){
+      location.href='dashboard.html';
+    }else{
+      location.href='anggota.html';
+    }
+  }catch(error){
     message.style.color='#ff7777';
-    message.textContent='Login gagal. Periksa email dan kata sandi.';
-    return;
-  }
-
-  // Admin tetap diarahkan ke dashboard admin.
-  if(data.user?.app_metadata?.role==='admin'){
-    location.href='dashboard.html';
-  }else{
-    location.href='anggota.html';
+    message.textContent='Terjadi masalah koneksi. Coba lagi.';
+  }finally{
+    button.disabled=false;
+    button.textContent='Masuk';
   }
 });
 </script>
