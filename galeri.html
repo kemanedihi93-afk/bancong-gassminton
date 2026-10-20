@@ -1,283 +1,41 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#101010">
-<title>Galeri | BANCONG GASSMINTON</title>
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#101010"><title>Galeri | BANCONG GASSMINTON</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root{
-  --red:#ed2638;--red-dark:#9f1725;--bg:#101010;--panel:#1b1b1b;
-  --panel2:#242424;--white:#fff;--muted:#c7c7c7;--border:#3b3b3b;
-  --green:#9be7ae;
-}
-*{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{margin:0;background:radial-gradient(ellipse at top,#211316 0,#101010 48%);color:var(--white);font-family:Arial,Helvetica,sans-serif;font-size:16px}
-header{position:sticky;top:0;z-index:20;background:rgba(19,19,19,.96);backdrop-filter:blur(12px);border-bottom:2px solid var(--red);padding:16px 5%}
-nav{display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap}
-.brand{color:white;font-size:clamp(20px,2.5vw,25px);font-weight:1000;letter-spacing:.5px;text-decoration:none}
-.brand span,.red{color:var(--red)}
-.nav-links{display:flex;flex-wrap:wrap;gap:16px}
-.nav-links a{color:#f0f0f0;font-size:15px;font-weight:700;text-decoration:none}
-.nav-links a:hover{color:#ff7c87}
-main{max-width:1180px;margin:auto;padding:24px 18px 64px}
-.hero{text-align:center;padding:48px 10px 34px}
-.eyebrow{display:inline-block;color:#ff9aa3;border:1px solid #6e2730;background:#291619;border-radius:30px;padding:8px 14px;font-size:14px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase}
-.hero h1{margin:18px 0 12px;font-size:clamp(36px,7vw,62px);font-weight:1000;letter-spacing:-1.3px;line-height:1.05;text-shadow:0 5px 24px #000}
-.hero p{max-width:700px;margin:0 auto 22px;color:#dedede;font-size:17px;line-height:1.8}
-.btn{display:inline-flex;justify-content:center;align-items:center;gap:8px;padding:13px 18px;border:1px solid transparent;border-radius:11px;background:linear-gradient(135deg,#ff3548,#c9182b);color:white;font-size:15px;font-weight:800;cursor:pointer;transition:transform .15s,filter .15s}
-.btn:hover{filter:brightness(1.12);transform:translateY(-1px)}
-.btn:disabled{opacity:.6;cursor:wait;transform:none}
-.panel{margin:22px 0;padding:24px;border:1px solid var(--border);border-radius:18px;background:linear-gradient(145deg,#202020,#171717);box-shadow:0 14px 35px #0003}
-.hidden{display:none!important}
-.panel h2,.section-heading{margin:0 0 12px;font-size:clamp(23px,4vw,30px);font-weight:900;letter-spacing:-.3px}
-form{display:grid;gap:16px}
-label{display:block;margin-bottom:8px;color:#f1f1f1;font-size:16px;font-weight:700}
-input,textarea,select{width:100%;padding:14px;border:1px solid #494949;border-radius:10px;background:#111;color:white;font:inherit;font-size:16px}
-input:focus,textarea:focus,select:focus{outline:2px solid #ed263877;border-color:var(--red)}
-input[type=file]{padding:11px}
-textarea{min-height:100px;resize:vertical}
-.small{color:var(--muted);font-size:15px;line-height:1.7}
-#status{margin-top:14px;line-height:1.7;overflow-wrap:anywhere;font-size:15px}
-.section-heading{margin-top:38px}
-.filters{display:flex;gap:10px;flex-wrap:wrap;margin:20px 0 24px}
-.filters button{padding:11px 16px;border:1px solid #484848;border-radius:30px;background:#252525;color:white;font-size:15px;font-weight:800;cursor:pointer}
-.filters button:hover{border-color:#ff7b86}
-.filters button.active{border-color:var(--red);background:var(--red);box-shadow:0 5px 18px #ed263833}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(245px,1fr));gap:19px}
-.card{min-width:0;overflow:hidden;border:1px solid #3c3c3c;border-radius:17px;background:linear-gradient(160deg,#222,#171717);box-shadow:0 10px 28px #0004;transition:transform .18s,border-color .18s}
-.card:hover{transform:translateY(-3px);border-color:#6a3037}
-.card img{display:block;width:100%;height:260px;object-fit:cover;background:#252525}
-.info{padding:16px}
-.info h3{margin:0 0 12px;font-size:21px;line-height:1.3;font-weight:900;overflow-wrap:anywhere}
-.info p{margin:10px 0;color:#d0d0d0;font-size:15px;line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere}
-.category-tag{display:inline-flex;align-items:center;gap:5px;padding:7px 11px;border-radius:20px;background:#392024;color:#ffc2c8;font-size:14px;font-weight:800}
-.photo-date{font-size:14px!important;color:#aaa!important}
-.card-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:15px}
-.action-btn{flex:1;min-width:95px;padding:10px 12px;border:1px solid #484848;border-radius:10px;background:#292929;color:white;font-size:15px;font-weight:800;cursor:pointer}
-.action-btn:hover{border-color:#ed2638}
-.action-btn.liked{background:#421b22;border-color:#ed2638;color:#ff8c98}
-.delete{margin-top:12px;background:#8c1824}
-.comments{margin-top:17px;padding-top:15px;border-top:1px solid #3a3a3a}
-.comments h4{margin:0 0 12px;font-size:17px}
-.comment-list{display:grid;gap:10px}
-.comment-item{padding:11px 12px;border-radius:10px;background:#111;border:1px solid #333}
-.comment-meta{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;color:#bcbcbc;font-size:13px}
-.comment-text{margin:0;color:#f0f0f0;font-size:15px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}
-.comment-delete{border:0;background:transparent;color:#ff8994;font-weight:800;cursor:pointer;font-size:13px}
-.comment-form{display:grid;gap:8px;margin-top:12px}
-.comment-form textarea{min-height:70px;padding:11px;font-size:15px}
-.comment-form .btn{width:100%;padding:11px}
-.comment-hint{margin:8px 0 0;color:#bcbcbc;font-size:14px;line-height:1.6}
-.empty{padding:35px 12px;color:var(--muted);text-align:center;line-height:1.8;font-size:16px}
-footer{padding:25px 15px;border-top:1px solid var(--border);color:#bbb;font-size:14px;text-align:center}
-@media(max-width:650px){
- header{padding:14px 4%}nav{align-items:flex-start;flex-direction:column;gap:12px}
- .nav-links{gap:11px 15px}.nav-links a{font-size:14px}
- main{padding:16px 12px 45px}.hero{padding:30px 4px 24px}.hero p{font-size:16px}
- .panel{padding:17px}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
- .card img{height:165px}.info{padding:11px}.info h3{font-size:18px}
- .info p{font-size:14px}.category-tag{font-size:12px;padding:6px 8px}
- .filters{gap:8px}.filters button{padding:10px 12px;font-size:14px}
- .card-actions{gap:7px}.action-btn{min-width:0;padding:10px 6px;font-size:13px}
- .comment-item{padding:9px}.comment-meta{font-size:12px;align-items:flex-start}
- .comment-text{font-size:14px}.comment-form textarea{font-size:14px}
-}
-@media(max-width:380px){.grid{grid-template-columns:1fr}.card img{height:230px}.info h3{font-size:20px}}
-</style>
-</head>
-<body>
-<header>
-  <nav>
-    <a class="brand" href="index.html">BANCONG <span>GASSMINTON</span></a>
-    <div class="nav-links">
-      <a href="index.html">Beranda</a><a href="members.html">Anggota</a>
-      <a href="schedules.html">Jadwal</a><a href="tournaments.html">Turnamen</a>
-      <a href="anggota-login.html">Login Anggota</a>
-    </div>
-  </nav>
-</header>
-<main>
-  <section class="hero">
-    <span class="eyebrow">🏸 Galeri Komunitas</span>
-    <h1>GALERI <span class="red">GASSMINTON</span></h1>
-    <p>Satu komunitas, satu semangat, banyak kenangan.<br>Bagikan momen latihan, turnamen, arisan, dan kebersamaan kita!</p>
-    <button class="btn" id="openUpload" type="button">📸 Unggah Foto</button>
-    <p class="small" id="accountInfo">Pengunjung dapat melihat foto. Login diperlukan untuk berinteraksi.</p>
-  </section>
-
-  <section class="panel hidden" id="uploadPanel">
-    <h2>📸 Unggah Foto Kegiatan</h2>
-    <p class="small">Hanya admin dan anggota yang sudah disetujui yang dapat mengunggah. Maksimal 5 MB per foto.</p>
-    <form id="uploadForm">
-      <div><label for="judul">Judul foto *</label><input id="judul" type="text" maxlength="100" required placeholder="Contoh: Latihan Badminton Bersama"></div>
-      <div><label for="kategori">Kategori album *</label><select id="kategori" required>
-        <option value="Latihan Badminton">🏸 Latihan Badminton</option><option value="Turnamen">🏆 Turnamen</option>
-        <option value="Kebersamaan">🤝 Kebersamaan</option><option value="Arisan">🎉 Arisan</option>
-        <option value="Kegiatan Lainnya">📸 Kegiatan Lainnya</option>
-      </select></div>
-      <div><label for="keterangan">Keterangan foto</label><textarea id="keterangan" maxlength="500" placeholder="Ceritakan momen dalam foto..."></textarea></div>
-      <div><label for="foto">Pilih foto *</label><input id="foto" type="file" accept="image/jpeg,image/png,image/webp" required><p class="small">Format JPG, PNG, atau WebP. Maksimal 5 MB.</p></div>
-      <button class="btn" id="uploadButton" type="submit">Unggah Sekarang</button>
-      <button class="btn hidden" id="cancelUpload" type="button">Batal</button>
-    </form>
-    <div id="status" role="status" aria-live="polite"></div>
-  </section>
-
-  <section>
-    <h2 class="section-heading">Album Foto Kegiatan</h2>
-    <p class="small">Pilih kategori, beri ❤️ suka, atau tinggalkan komentar untuk meramaikan galeri.</p>
-    <div class="filters" id="filters">
-      <button class="active" type="button" data-filter="all">Semua Foto</button>
-      <button type="button" data-filter="Latihan Badminton">🏸 Latihan</button>
-      <button type="button" data-filter="Turnamen">🏆 Turnamen</button>
-      <button type="button" data-filter="Kebersamaan">🤝 Kebersamaan</button>
-      <button type="button" data-filter="Arisan">🎉 Arisan</button>
-      <button type="button" data-filter="Kegiatan Lainnya">📸 Lainnya</button>
-    </div>
-    <div id="gallery" class="grid"></div><div id="empty" class="empty">Memuat foto...</div>
-  </section>
-</main>
-<footer>© 2026 BANCONG GASSMINTON · Kebersamaan dan sportivitas.</footer>
-
+:root{--r:#ed2638;--bg:#101010;--panel:#1b1b1b;--muted:#c7c7c7;--line:#3b3b3b}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#211316,#101010 48%);color:#fff;font:16px Arial,sans-serif}header{position:sticky;top:0;z-index:2;background:#131313f5;border-bottom:2px solid var(--r);padding:16px 5%}nav{display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap}.brand{color:#fff;font-size:23px;font-weight:900;text-decoration:none}.brand span,.red{color:var(--r)}.nav-links{display:flex;gap:15px;flex-wrap:wrap}.nav-links a{color:#eee;text-decoration:none;font-weight:700;font-size:14px}main{max-width:1180px;margin:auto;padding:20px 16px 60px}.hero{text-align:center;padding:42px 8px 30px}.eyebrow{display:inline-block;border:1px solid #6e2730;background:#291619;color:#ff9aa3;border-radius:25px;padding:8px 14px;font-weight:800}.hero h1{font-size:clamp(34px,7vw,60px);line-height:1.1;margin:18px 0 12px}.hero p{color:#ddd;line-height:1.7}.btn{border:0;border-radius:10px;background:linear-gradient(135deg,#ff3548,#c9182b);color:white;padding:12px 17px;font-weight:800;font-size:15px;cursor:pointer}.small{color:var(--muted);font-size:14px;line-height:1.6}.panel{margin:20px 0;padding:22px;border:1px solid var(--line);border-radius:16px;background:linear-gradient(145deg,#202020,#171717)}.hidden{display:none!important}h2{font-size:clamp(23px,4vw,30px)}form{display:grid;gap:14px}label{display:block;margin-bottom:7px;font-weight:700}input,textarea,select{width:100%;padding:13px;border:1px solid #494949;border-radius:9px;background:#111;color:white;font:inherit}textarea{min-height:85px}.section-heading{margin-top:35px}.filters{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0}.filters button{border:1px solid #484848;border-radius:25px;background:#252525;color:white;padding:10px 13px;font-weight:700;cursor:pointer}.filters button.active{background:var(--r);border-color:var(--r)}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:17px}.card{overflow:hidden;border:1px solid #3c3c3c;border-radius:16px;background:linear-gradient(160deg,#222,#171717)}.card img{display:block;width:100%;height:250px;object-fit:cover;background:#252525}.info{padding:14px}.info h3{margin:0 0 10px;font-size:20px;overflow-wrap:anywhere}.info p{color:#ddd;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}.tag{display:inline-block;padding:6px 10px;border-radius:20px;background:#392024;color:#ffc2c8;font-size:13px;font-weight:800}.actions{display:flex;gap:8px;margin:13px 0;flex-wrap:wrap}.action{flex:1;min-width:90px;border:1px solid #484848;border-radius:9px;background:#292929;color:#fff;padding:10px 8px;font-weight:700;cursor:pointer}.action.liked{border-color:var(--r);color:#ff8c98}.comments{border-top:1px solid #393939;padding-top:12px;margin-top:12px}.comment{padding:10px;margin:8px 0;background:#111;border:1px solid #333;border-radius:9px}.comment small{color:#bbb}.comment p{margin:7px 0}.comment textarea{min-height:65px}.empty{text-align:center;color:var(--muted);padding:32px 10px;line-height:1.7}footer{text-align:center;color:#bbb;border-top:1px solid var(--line);padding:24px 12px;font-size:14px}@media(max-width:650px){header{padding:13px 4%}nav{align-items:flex-start;flex-direction:column}.nav-links{gap:12px}.hero{padding:28px 3px}.panel{padding:16px}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.card img{height:165px}.info{padding:10px}.info h3{font-size:17px}.info p{font-size:14px}.action{min-width:0;font-size:12px;padding:9px 5px}}@media(max-width:380px){.grid{grid-template-columns:1fr}.card img{height:220px}}
+</style></head><body>
+<header><nav><a class="brand" href="index.html">BANCONG <span>GASSMINTON</span></a><div class="nav-links"><a href="index.html">Beranda</a><a href="members.html">Anggota</a><a href="schedules.html">Jadwal</a><a href="tournaments.html">Turnamen</a><a href="anggota-login.html">Login Anggota</a></div></nav></header>
+<main><section class="hero"><span class="eyebrow">🏸 Galeri Komunitas</span><h1>GALERI <span class="red">GASSMINTON</span></h1><p>Satu komunitas, satu semangat, banyak kenangan.<br>Bagikan momen latihan, turnamen, arisan, dan kebersamaan kita!</p><button class="btn" id="openUpload">📸 Unggah Foto</button><p class="small" id="accountInfo">Pengunjung dapat melihat foto. Login diperlukan untuk berinteraksi.</p></section>
+<section class="panel hidden" id="uploadPanel"><h2>📸 Unggah Foto Kegiatan</h2><p class="small">Hanya admin dan anggota yang sudah disetujui yang dapat mengunggah. Maksimal 5 MB.</p><form id="uploadForm"><div><label for="judul">Judul foto *</label><input id="judul" maxlength="100" required placeholder="Contoh: Latihan Bersama"></div><div><label for="kategori">Kategori album *</label><select id="kategori"><option>Latihan Badminton</option><option>Turnamen</option><option>Kebersamaan</option><option>Arisan</option><option>Kegiatan Lainnya</option></select></div><div><label for="keterangan">Keterangan foto</label><textarea id="keterangan" maxlength="500" placeholder="Ceritakan momen dalam foto..."></textarea></div><div><label for="foto">Pilih foto *</label><input id="foto" type="file" accept="image/jpeg,image/png,image/webp" required><p class="small">JPG, PNG, WebP; maksimal 5 MB.</p></div><button class="btn" id="uploadButton">Unggah Sekarang</button><button class="btn hidden" id="cancelUpload" type="button">Batal</button></form><p id="status" role="status"></p></section>
+<section><h2 class="section-heading">Album Foto Kegiatan</h2><p class="small">Pilih kategori, beri ❤️ suka, atau tinggalkan komentar.</p><div class="filters" id="filters"><button class="active" data-filter="all">Semua Foto</button><button data-filter="Latihan Badminton">🏸 Latihan</button><button data-filter="Turnamen">🏆 Turnamen</button><button data-filter="Kebersamaan">🤝 Kebersamaan</button><button data-filter="Arisan">🎉 Arisan</button><button data-filter="Kegiatan Lainnya">📸 Lainnya</button></div><div id="gallery" class="grid"></div><div id="empty" class="empty">Memuat foto...</div></section></main><footer>© 2026 BANCONG GASSMINTON · Kebersamaan dan sportivitas.</footer>
 <script>
 "use strict";
-const SUPABASE_URL="https://vyrypjxuhiywvkeiewpd.supabase.co";
-const SUPABASE_KEY="sb_publishable_pRU3ZWYBomp_vQoUaI6Tzg_TbxqrYby";
-const BUCKET="galeri-gassminton";
+const SUPABASE_URL="https://vyrypjxuhiywvkeiewpd.supabase.co",SUPABASE_KEY="sb_publishable_pRU3ZWYBomp_vQoUaI6Tzg_TbxqrYby",BUCKET="galeri-gassminton";
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-const openUpload=document.getElementById("openUpload"),uploadPanel=document.getElementById("uploadPanel");
-const uploadForm=document.getElementById("uploadForm"),uploadButton=document.getElementById("uploadButton");
-const cancelUpload=document.getElementById("cancelUpload"),statusBox=document.getElementById("status");
-const accountInfo=document.getElementById("accountInfo"),gallery=document.getElementById("gallery"),empty=document.getElementById("empty");
-let currentUser=null,isAdmin=false,isApproved=false,photos=[],activeFilter="all",likes=[],comments=[];
-
-function setStatus(message,isError=false){statusBox.textContent=message;statusBox.style.color=isError?"#ff8790":"#9be7ae"}
-function makeElement(tag,text="",className=""){const el=document.createElement(tag);el.textContent=text;if(className)el.className=className;return el}
-function categoryName(value){const valid=["Latihan Badminton","Turnamen","Kebersamaan","Arisan","Kegiatan Lainnya"];return valid.includes(value)?value:"Kegiatan Lainnya"}
-function categoryEmoji(value){return {"Latihan Badminton":"🏸","Turnamen":"🏆","Kebersamaan":"🤝","Arisan":"🎉","Kegiatan Lainnya":"📸"}[categoryName(value)]}
-function canInteract(){return Boolean(currentUser&&(isAdmin||isApproved))}
-function niceDate(value){const d=new Date(value);return Number.isNaN(d.getTime())?"":d.toLocaleDateString("id-ID",{day:"numeric",month:"short",year:"numeric"})}
-async function checkUser(){
- const {data,error}=await db.auth.getSession();if(error)throw error;
- currentUser=data.session?.user||null;isAdmin=Boolean(currentUser&&currentUser.app_metadata?.role==="admin");isApproved=false;
- if(currentUser&&!isAdmin){
-  const {data:profile,error:profileError}=await db.from("member_profiles").select("status").eq("user_id",currentUser.id).maybeSingle();
-  if(profileError)console.error("Gagal membaca profil:",profileError);
-  isApproved=profile?.status==="approved";
- }
- openUpload.textContent=!currentUser?"🔐 Login untuk Unggah Foto":"📸 Unggah Foto";
- accountInfo.textContent=!currentUser?"Kamu bisa melihat foto. Login diperlukan untuk menyukai, berkomentar, atau mengunggah.":isAdmin?"Login sebagai admin. Kamu bisa mengelola galeri dan komentar.":isApproved?"Anggota terverifikasi. Kamu bisa menyukai, berkomentar, dan mengunggah foto.":"Akun anggota belum disetujui. Kamu masih bisa melihat galeri.";
+const $=id=>document.getElementById(id);let currentUser=null,isAdmin=false,isApproved=false,photos=[],likes=[],comments=[],activeFilter="all";
+function el(tag,text="",cls=""){const n=document.createElement(tag);n.textContent=text;if(cls)n.className=cls;return n}
+function catName(v){return ["Latihan Badminton","Turnamen","Kebersamaan","Arisan","Kegiatan Lainnya"].includes(v)?v:"Kegiatan Lainnya"}
+function emoji(v){return {"Latihan Badminton":"🏸","Turnamen":"🏆","Kebersamaan":"🤝","Arisan":"🎉","Kegiatan Lainnya":"📸"}[catName(v)]}
+function date(v){const d=new Date(v);return isNaN(d)?"":d.toLocaleDateString("id-ID",{day:"numeric",month:"short",year:"numeric"})}
+function canInteract(){return !!currentUser&&(isAdmin||isApproved)}
+async function checkUser(){const {data,error}=await db.auth.getSession();if(error)throw error;currentUser=data.session?.user||null;isAdmin=!!currentUser&&currentUser.app_metadata?.role==="admin";isApproved=false;if(currentUser&&!isAdmin){const r=await db.from("member_profiles").select("status").eq("user_id",currentUser.id).maybeSingle();if(r.error)console.warn(r.error);isApproved=r.data?.status==="approved"}$("openUpload").textContent=currentUser?"📸 Unggah Foto":"🔐 Login untuk Unggah Foto";$("accountInfo").textContent=!currentUser?"Kamu bisa melihat foto. Login diperlukan untuk menyukai, berkomentar, atau mengunggah.":isAdmin?"Login sebagai admin. Kamu bisa mengelola galeri.":isApproved?"Anggota terverifikasi. Kamu bisa menyukai, berkomentar, dan mengunggah.":"Akun anggota belum disetujui. Kamu masih bisa melihat galeri."}
+async function needMember(){await checkUser();if(!currentUser){alert("Silakan login terlebih dahulu.");location.href="anggota-login.html";return false}if(!canInteract()){alert("Fitur ini hanya untuk admin dan anggota yang sudah disetujui.");return false}return true}
+$("openUpload").addEventListener("click",async()=>{try{await checkUser();if(!currentUser){location.href="anggota-login.html";return}if(!canInteract()){alert("Akun anggota belum disetujui. Hubungi admin.");return}$("uploadPanel").classList.toggle("hidden");if(!$("uploadPanel").classList.contains("hidden"))$("uploadPanel").scrollIntoView({behavior:"smooth"})}catch(e){console.error(e);alert("Gagal memeriksa akun. Muat ulang halaman.")}});
+$("cancelUpload").addEventListener("click",()=>{$("uploadPanel").classList.add("hidden");$("uploadForm").reset();$("status").textContent=""});
+async function loadEngagement(){const [l,c]=await Promise.all([db.from("galeri_likes").select("id,foto_id,user_id,created_at"),db.from("galeri_comments").select("id,foto_id,user_id,isi,created_at").order("created_at",{ascending:true})]);if(l.error)console.warn("Suka:",l.error);if(c.error)console.warn("Komentar:",c.error);likes=l.error?[]:(l.data||[]);comments=c.error?[]:(c.data||[])}
+async function toggleLike(p){try{if(!await needMember())return;const found=likes.find(x=>String(x.foto_id)===String(p.id)&&x.user_id===currentUser.id);const r=found?await db.from("galeri_likes").delete().eq("id",found.id).eq("user_id",currentUser.id):await db.from("galeri_likes").insert({foto_id:p.id,user_id:currentUser.id});if(r.error)throw r.error;await loadEngagement();render()}catch(e){console.error(e);alert("Gagal memberi suka. Pastikan akun sudah disetujui.")}}
+async function deletePhoto(p){if(!isAdmin||!confirm("Hapus foto ini dari galeri?"))return;try{const r=await db.from("galeri_foto").delete().eq("id",p.id);if(r.error)throw r.error;if(p.file_path){const s=await db.storage.from(BUCKET).remove([p.file_path]);if(s.error)console.warn(s.error)}photos=photos.filter(x=>String(x.id)!==String(p.id));await loadEngagement();render()}catch(e){console.error(e);alert("Foto gagal dihapus. Periksa izin admin.")}}
+async function deleteComment(c){if(!currentUser||!(isAdmin||c.user_id===currentUser.id)||!confirm("Hapus komentar ini?"))return;const r=await db.from("galeri_comments").delete().eq("id",c.id);if(r.error){console.error(r.error);alert("Komentar gagal dihapus.");return}await loadEngagement();render()}
+function render(){const root=$("gallery");root.replaceChildren();const list=photos.filter(p=>activeFilter==="all"||catName(p.kategori)===activeFilter);if(!list.length){$("empty").textContent=activeFilter==="all"?"Belum ada foto. Jadilah yang pertama berbagi momen!":"Belum ada foto dalam album ini."; $("empty").classList.remove("hidden");return}$("empty").classList.add("hidden");
+for(const p of list){const card=el("article","","card"),img=document.createElement("img"),url=db.storage.from(BUCKET).getPublicUrl(p.file_path||"").data.publicUrl;img.src=url;img.alt=p.judul||"Foto kegiatan GASSMINTON";img.loading="lazy";img.onerror=()=>{img.title="Foto tidak dapat dimuat"};const info=el("div","","info");info.append(el("h3",p.judul||"Foto Kegiatan"),el("span",emoji(p.kategori)+" "+catName(p.kategori),"tag"),el("p",p.keterangan||"Dokumentasi kegiatan komunitas."));if(p.created_at)info.append(el("p","📅 Diunggah: "+date(p.created_at)));
+const pl=likes.filter(x=>String(x.foto_id)===String(p.id)),pc=comments.filter(x=>String(x.foto_id)===String(p.id)),liked=!!currentUser&&pl.some(x=>x.user_id===currentUser.id),actions=el("div","","actions"),lb=el("button",(liked?"❤️ Disukai":"🤍 Suka")+" · "+pl.length,"action"+(liked?" liked":""));lb.type="button";lb.onclick=()=>toggleLike(p);const cb=el("button","💬 Komentar · "+pc.length,"action");cb.type="button";actions.append(lb,cb);info.append(actions);
+const cs=el("section","","comments");cs.append(el("h4","💬 Komentar ("+pc.length+")"));if(!pc.length)cs.append(el("p","Belum ada komentar. Yuk mulai percakapan positif!","small"));
+for(const c of pc){const item=el("div","","comment");item.append(el("small","Anggota · "+date(c.created_at)));if(currentUser&&(isAdmin||c.user_id===currentUser.id)){const d=el("button"," Hapus","action");d.type="button";d.onclick=()=>deleteComment(c);item.append(d)}item.append(el("p",c.isi));cs.append(item)}
+const form=el("form");form.style.marginTop="12px";const ta=document.createElement("textarea");ta.maxLength=500;ta.placeholder="Tulis komentar yang sopan...";ta.setAttribute("aria-label","Tulis komentar");const send=el("button","Kirim Komentar","btn");send.type="submit";const hint=el("p",canInteract()?"Maksimal 500 karakter.":"Login dan persetujuan anggota diperlukan.","small");form.append(ta,send,hint);form.onsubmit=async e=>{e.preventDefault();const isi=ta.value.trim();if(!isi)return alert("Komentar tidak boleh kosong.");if(!await needMember())return;send.disabled=true;try{const r=await db.from("galeri_comments").insert({foto_id:p.id,user_id:currentUser.id,isi});if(r.error)throw r.error;await loadEngagement();render()}catch(err){console.error(err);alert("Komentar gagal dikirim. Pastikan akun sudah disetujui.")}finally{send.disabled=false}};cs.append(form);cb.onclick=()=>{cs.scrollIntoView({behavior:"smooth",block:"nearest"});ta.focus()};info.append(cs);
+if(isAdmin){const del=el("button","🗑️ Hapus Foto","btn");del.style.marginTop="12px";del.onclick=()=>deletePhoto(p);info.append(del)}card.append(img,info);root.append(card)}
 }
-async function requireInteraction(){
- await checkUser();
- if(!currentUser){alert("Silakan login terlebih dahulu untuk menyukai atau berkomentar.");window.location.href="anggota-login.html";return false}
- if(!canInteract()){alert("Fitur ini hanya untuk admin dan anggota yang sudah disetujui. Hubungi admin komunitas.");return false}
- return true;
-}
-openUpload.addEventListener("click",async()=>{
- try{await checkUser();if(!currentUser){window.location.href="anggota-login.html";return}
- if(!canInteract()){alert("Akun anggota kamu belum disetujui. Hubungi admin komunitas.");return}
- uploadPanel.classList.toggle("hidden");if(!uploadPanel.classList.contains("hidden"))uploadPanel.scrollIntoView({behavior:"smooth",block:"start"});
- }catch(e){console.error(e);alert("Tidak dapat memeriksa akun. Coba muat ulang halaman.")}
-});
-cancelUpload.addEventListener("click",()=>{uploadPanel.classList.add("hidden");uploadForm.reset();setStatus("")});
-
-async function loadEngagement(){
- const [likeResult,commentResult]=await Promise.all([
-  db.from("galeri_likes").select("id,foto_id,user_id,created_at"),
-  db.from("galeri_comments").select("id,foto_id,user_id,isi,created_at").order("created_at",{ascending:true})
- ]);
- if(likeResult.error)console.error("Gagal memuat suka:",likeResult.error);
- if(commentResult.error)console.error("Gagal memuat komentar:",commentResult.error);
- likes=likeResult.error?[]:(likeResult.data||[]);
- comments=commentResult.error?[]:(commentResult.data||[]);
-}
-function makeCommentForm(photo){
- const form=makeElement("form","","comment-form");form.noValidate=true;
- const input=document.createElement("textarea");input.maxLength=500;input.placeholder="Tulis komentar yang sopan...";input.setAttribute("aria-label","Tulis komentar");
- const button=makeElement("button","Kirim Komentar","btn");button.type="submit";
- const hint=makeElement("p",canInteract()?"Maksimal 500 karakter. Jaga komentar tetap sopan.":"Login dan persetujuan anggota diperlukan untuk berkomentar.","comment-hint");
- form.append(input,button,hint);
- form.addEventListener("submit",async e=>{
-  e.preventDefault();const isi=input.value.trim();if(!isi){alert("Komentar tidak boleh kosong.");return}
-  if(isi.length>500){alert("Komentar maksimal 500 karakter.");return}
-  button.disabled=true;button.textContent="Mengirim...";
-  try{
-   if(!await requireInteraction())return;
-   const {error}=await db.from("galeri_comments").insert({foto_id:photo.id,user_id:currentUser.id,isi});
-   if(error)throw error;
-   input.value="";await loadEngagement();renderPhotos();
-  }catch(err){console.error(err);alert("Komentar gagal dikirim. Pastikan akun sudah disetujui dan coba lagi.")}
-  finally{button.disabled=false;button.textContent="Kirim Komentar"}
- });
- return form;
-}
-async function deleteComment(comment){
- if(!currentUser||!(isAdmin||comment.user_id===currentUser.id)){alert("Kamu tidak punya izin menghapus komentar ini.");return}
- if(!confirm("Hapus komentar ini?"))return;
- const {error}=await db.from("galeri_comments").delete().eq("id",comment.id);
- if(error){console.error(error);alert("Komentar belum berhasil dihapus.");return}
- await loadEngagement();renderPhotos();
-}
-async function toggleLike(photo){
- try{
-  if(!await requireInteraction())return;
-  const existing=likes.find(x=>x.foto_id===photo.id&&x.user_id===currentUser.id);
-  if(existing){
-   const {error}=await db.from("galeri_likes").delete().eq("id",existing.id).eq("user_id",currentUser.id);
-   if(error)throw error;
-  }else{
-   const {error}=await db.from("galeri_likes").insert({foto_id:photo.id,user_id:currentUser.id});
-   if(error)throw error;
-  }
-  await loadEngagement();renderPhotos();
- }catch(err){console.error(err);alert("Belum berhasil memberi suka. Pastikan akun sudah disetujui, lalu coba lagi.")}
-}
-function renderPhotos(){
- gallery.replaceChildren();
- const filtered=photos.filter(p=>activeFilter==="all"||categoryName(p.kategori)===activeFilter);
- if(!filtered.length){empty.textContent=activeFilter==="all"?"Belum ada foto. Jadilah yang pertama berbagi momen!":"Belum ada foto dalam album ini.";empty.classList.remove("hidden");return}
- empty.classList.add("hidden");
- filtered.forEach(photo=>{
-  const card=document.createElement("article");card.className="card";
-  const image=document.createElement("img");const {data}=db.storage.from(BUCKET).getPublicUrl(photo.file_path);
-  image.src=data.publicUrl;image.alt=photo.judul||"Foto kegiatan GASSMINTON";image.loading="lazy";image.onerror=()=>{image.alt="Foto tidak dapat dimuat"};
-  const info=document.createElement("div");info.className="info";
-  info.appendChild(makeElement("h3",photo.judul||"Foto Kegiatan"));
-  const cat=categoryName(photo.kategori);info.appendChild(makeElement("span",categoryEmoji(cat)+" "+cat,"category-tag"));
-  info.appendChild(makeElement("p",photo.keterangan||"Dokumentasi kegiatan komunitas."));
-  if(photo.created_at)info.appendChild(makeElement("p","📅 Diunggah: "+niceDate(photo.created_at),"photo-date"));
-  const photoLikes=likes.filter(l=>l.foto_id===photo.id);
-  const liked=Boolean(currentUser&&photoLikes.some(l=>l.user_id===currentUser.id));
-  const actionRow=makeElement("div","","card-actions");
-  const likeButton=makeElement("button",(liked?"❤️ Disukai":"🤍 Suka")+" · "+photoLikes.length,"action-btn"+(liked?" liked":""));
-  likeButton.type="button";likeButton.setAttribute("aria-pressed",String(liked));likeButton.addEventListener("click",()=>toggleLike(photo));
-  const photoComments=comments.filter(c=>c.foto_id===photo.id);
-  const commentJump=makeElement("button","💬 Komentar · "+photoComments.length,"action-btn");commentJump.type="button";
-  commentJump.addEventListener("click",()=>{const section=card.querySelector(".comments");section.scrollIntoView({behavior:"smooth",block:"nearest"});const input=section.querySelector("textarea");if(input)input.focus()});
-  actionRow.append(likeButton,commentJump);info.appendChild(actionRow);
-  const commentSection=makeElement("section","","comments");commentSection.appendChild(makeElement("h4","💬 Komentar ("+photoComments.length+")"));
-  const list=makeElement("div","","comment-list");
-  if(!photoComments.length)list.appendChild(makeElement("p","Belum ada komentar. Yuk mulai percakapan yang positif!","comment-hint"));
-  photoComments.forEach(comment=>{
-   const item=makeElement("div","","comment-item");const meta=makeElement("div","","comment-meta");
-   // Nama dan email pengguna tidak ditampilkan; hanya label umum untuk menjaga privasi.
-   meta.appendChild(makeElement("span","Anggota · "+niceDate(comment.created_at)));
-   if(currentUser&&(isAdmin||comment.user_id===currentUser.id)){
-    const del=makeElement("button","Hapus","comment-delete");del.type="button";del.addEventListener("click",()=>deleteComment(comment));meta.appendChild(del);
-   }
-   item.append(meta,makeElement("p",comment.isi,"comment-text"));list.appendChild(item);
-  });
-  commentSection.appendChild(list);commentSection.appendChild(makeCommentForm(photo));info.appendChild(commentSection);
-  if(isAdmin){const del=makeElement("button","🗑️ Hapus Foto","btn delete");del.type="button";del.addEventListener("click",()=>deletePhoto(photo));info.appendChild(del)}
-  card.append(image,info);gallery.appendChild(card);
- });
-}
-async function loadPhotos(){
- empty.textContent="Memuat foto...";empty.classList.remove("hidden");
- const {data,error}=await db.from("galeri_foto").select("id,judul,keterangan,kategori,file_path,user_id,created_at").order("created_at",{ascending:false});
- if(error){console.error("Gagal memuat galeri:",error);empty.textContent="Foto belum dapat dimuat. Periksa koneksi dan izin akses galeri.";return}
- photos=data||[
+async function loadPhotos(){$("empty").textContent="Memuat foto...";$("empty").classList.remove("hidden");try{const r=await db.from("galeri_foto").select("id,judul,keterangan,kategori,file_path,user_id,created_at").order("created_at",{ascending:false});if(r.error)throw r.error;photos=r.data||[];await loadEngagement();render()}catch(e){console.error("Gagal memuat galeri:",e);$("empty").textContent="Foto belum dapat dimuat. Muat ulang halaman atau periksa izin tabel galeri_foto."}}
+$("filters").addEventListener("click",e=>{const b=e.target.closest("button[data-filter]");if(!b)return;activeFilter=b.dataset.filter;document.querySelectorAll("#filters button").forEach(x=>x.classList.toggle("active",x===b));render()});
+$("uploadForm").addEventListener("submit",async e=>{e.preventDefault();const status=$("status"),button=$("uploadButton"),file=$("foto").files[0],judul=$("judul").value.trim(),kategori=$("kategori").value,keterangan=$("keterangan").value.trim();status.textContent="";if(!file)return;if(file.size>5*1024*1024){status.textContent="Ukuran foto maksimal 5 MB.";return}if(!["image/jpeg","image/png","image/webp"].includes(file.type)){status.textContent="Format harus JPG, PNG, atau WebP.";return}button.disabled=true;button.textContent="Mengunggah...";try{await checkUser();if(!canInteract())throw Error("Hanya admin dan anggota disetujui yang dapat mengunggah.");const name=file.name.toLowerCase().replace(/[^a-z0-9._-]/g,"-"),path=currentUser.id+"/"+Date.now()+"-"+name;const up=await db.storage.from(BUCKET).upload(path,file,{cacheControl:"3600",upsert:false,contentType:file.type});if(up.error)throw up.error;const ins=await db.from("galeri_foto").insert({judul,keterangan,kategori,file_path:path,user_id:currentUser.id});if(ins.error){await db.storage.from(BUCKET).remove([path]);throw ins.error}status.textContent="Foto berhasil diunggah!";$("uploadForm").reset();await loadPhotos()}catch(err){console.error(err);status.textContent="Gagal mengunggah: "+(err.message||"periksa izin akun dan penyimpanan")}finally{button.disabled=false;button.textContent="Unggah Sekarang"}});
+(async()=>{try{await checkUser()}catch(e){console.warn(e)}await loadPhotos()})();
+</script></body></html>
