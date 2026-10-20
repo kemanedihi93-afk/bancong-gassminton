@@ -1,72 +1,37 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard Admin | BANCONG GASSMINTON</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0; font-family: Arial, sans-serif; color: #fff;
-      background: #101010;
-    }
-    header {
-      padding: 22px 16px; background: #1b1b1b;
-      border-bottom: 3px solid #e50914;
-    }
-    header h1 { margin: 0; font-size: 22px; }
-    header p { margin: 8px 0 0; color: #bbb; font-size: 14px; }
-    main { max-width: 900px; margin: auto; padding: 20px 15px; }
-    .status {
-      padding: 15px; background: #1b1b1b; border-radius: 10px;
-      border: 1px solid #333; margin-bottom: 20px;
-    }
-    .grid {
-      display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
-    }
-    .menu {
-      display: block; padding: 20px 12px; text-decoration: none;
-      color: white; background: #1d1d1d; border: 1px solid #383838;
-      border-radius: 12px; min-height: 110px;
-    }
-    .menu strong { display: block; font-size: 17px; margin-bottom: 8px; }
-    .menu span { font-size: 13px; color: #bbb; }
-    .menu:hover { border-color: #e50914; }
-    .logout {
-      margin-top: 24px; padding: 13px 18px; border: 0;
-      border-radius: 8px; background: #e50914; color: white;
-      font-size: 15px; font-weight: bold;
-    }
-    #pesan { color: #ffbaba; }
-    @media (min-width: 650px) {
-      .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    }
-  </style>
-</head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#111111">
+<title>Dashboard Admin | BANCONG GASSMINTON</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--red:#e50914;--bg:#0c0c0e;--line:#303036;--text:#f7f7f8;--muted:#b5b5bf}*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:radial-gradient(circle at top right,#351014 0,transparent 34%),var(--bg);color:var(--text);min-height:100vh}header{background:rgba(17,17,19,.94);border-bottom:1px solid #3a2023;position:sticky;top:0;z-index:5;backdrop-filter:blur(12px)}.head-inner{max-width:1080px;margin:auto;padding:17px 16px;display:flex;align-items:center;gap:12px}.brand-icon{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(145deg,#ff2632,#a90009);font-size:25px;box-shadow:0 7px 24px #e509142d}h1{font-size:clamp(18px,4vw,24px);margin:0;letter-spacing:.2px}header p{margin:4px 0 0;color:var(--muted);font-size:13px}main{max-width:1080px;margin:0 auto;padding:24px 16px 42px}.welcome{background:linear-gradient(120deg,#241316,#19191d 70%);border:1px solid #49252a;border-radius:20px;padding:22px;margin-bottom:22px;position:relative;overflow:hidden}.welcome:after{content:"🏸";position:absolute;right:16px;bottom:-17px;font-size:90px;opacity:.12;transform:rotate(-22deg)}.eyebrow{color:#ff747b;font-weight:800;text-transform:uppercase;letter-spacing:1.3px;font-size:11px}.welcome h2{font-size:clamp(22px,5vw,30px);margin:8px 0}.welcome p{color:#d0cbd0;margin:0;line-height:1.55;font-size:14px;max-width:650px}.status{margin-top:15px;display:inline-flex;align-items:center;gap:8px;background:#111113;border:1px solid #38383f;border-radius:999px;padding:8px 12px;font-size:12px;color:#e4e4e7;max-width:100%;overflow-wrap:anywhere}.dot{width:8px;height:8px;border-radius:50%;background:#f3b63f;flex:0 0 auto}.section-title{display:flex;align-items:end;justify-content:space-between;gap:10px;margin:25px 2px 13px}.section-title h3{font-size:18px;margin:0}.section-title span{font-size:12px;color:var(--muted)}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.menu{position:relative;min-height:142px;display:flex;flex-direction:column;align-items:flex-start;gap:10px;text-decoration:none;color:var(--text);padding:17px 15px;background:linear-gradient(145deg,#1d1d22,#151518);border:1px solid var(--line);border-radius:17px;transition:transform .18s,border-color .18s,background .18s}.menu:hover,.menu:focus-visible{transform:translateY(-2px);border-color:#a93a41;background:linear-gradient(145deg,#29191c,#17171b);outline:none}.icon{width:43px;height:43px;display:grid;place-items:center;background:#2b171a;border:1px solid #49252a;border-radius:13px;font-size:23px}.menu strong{font-size:16px}.menu small{font-size:12px;line-height:1.45;color:var(--muted)}.arrow{position:absolute;right:13px;top:16px;color:#8f8f99;font-size:18px}.bottom-row{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-top:24px;padding-top:18px;border-top:1px solid var(--line)}.hint{font-size:12px;color:var(--muted);line-height:1.5}button{font:inherit;cursor:pointer}.logout{border:0;border-radius:12px;background:var(--red);color:#fff;font-weight:800;padding:12px 16px;white-space:nowrap}.logout:hover{background:#ff2934}.error{display:none;margin:15px 0;padding:13px 14px;border:1px solid #7d2b31;background:#291417;color:#ffd5d8;border-radius:12px;font-size:13px;line-height:1.5}footer{text-align:center;padding:8px 16px 24px;color:#777781;font-size:11px}@media(min-width:650px){main{padding-top:30px}.grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}.menu{padding:20px;min-height:158px}.welcome{padding:28px}}@media(max-width:380px){.grid{grid-template-columns:1fr}.menu{min-height:120px}.bottom-row{align-items:flex-start;flex-direction:column}.logout{width:100%}}
+</style></head>
 <body>
-  <header>
-    <h1>🏸 BANCONG GASSMINTON</h1>
-    <p>Dashboard Pengelola</p>
-  </header>
-
-  <main>
-    <div class="status">
-      <strong>Selamat datang, Admin!</strong>
-      <p id="statusAkun">Memeriksa akun...</p>
-      <p id="pesan"></p>
-    </div>
-
-    <section class="grid">
-      <a class="menu" href="members.html">
-        <strong>👥 Anggota</strong>
-        <span>Data dan pendaftaran anggota</span>
-      </a>
-      <a class="menu" href="cash.html">
-        <strong>💰 Kas</strong>
-        <span>Pemasukan dan pengeluaran</span>
-      </a>
-      <a class="menu" href="arisan.html">
-        <strong>🤝 Arisan</strong>
-        <
+<header><div class="head-inner"><div class="brand-icon" aria-hidden="true">🏸</div><div><h1>BANCONG GASSMINTON</h1><p>Dashboard Pengelola</p></div></div></header>
+<main>
+<section class="welcome"><div class="eyebrow">Area pengelola</div><h2>Selamat datang, Admin! 👋</h2><p>Kelola kegiatan klub, anggota, keuangan, dan informasi badminton dari satu tempat.</p><div class="status" aria-live="polite"><span class="dot" id="statusDot"></span><span id="statusAkun">Memeriksa akun...</span></div></section>
+<div class="error" id="errorBox" role="alert"></div>
+<div class="section-title"><h3>Menu Pengelolaan</h3><span>Pilih menu untuk melanjutkan</span></div>
+<section class="grid" aria-label="Menu pengelolaan">
+<a class="menu" href="members.html"><span class="arrow">↗</span><span class="icon">👥</span><strong>Anggota</strong><small>Data anggota dan pendaftaran baru</small></a>
+<a class="menu" href="cash.html"><span class="arrow">↗</span><span class="icon">💰</span><strong>Kas</strong><small>Catatan pemasukan dan pengeluaran</small></a>
+<a class="menu" href="arisan.html"><span class="arrow">↗</span><span class="icon">🤝</span><strong>Arisan</strong><small>Informasi dan pengelolaan arisan</small></a>
+<a class="menu" href="galeri.html"><span class="arrow">↗</span><span class="icon">📸</span><strong>Galeri</strong><small>Foto kegiatan, suka, dan komentar</small></a>
+<a class="menu" href="matches.html"><span class="arrow">↗</span><span class="icon">🏸</span><strong>Pertandingan</strong><small>Catatan dan informasi pertandingan</small></a>
+<a class="menu" href="tournaments.html"><span class="arrow">↗</span><span class="icon">🏆</span><strong>Turnamen</strong><small>Informasi dan data turnamen</small></a>
+<a class="menu" href="schedules.html"><span class="arrow">↗</span><span class="icon">📅</span><strong>Jadwal</strong><small>Jadwal latihan dan kegiatan klub</small></a>
+<a class="menu" href="index.html"><span class="arrow">↗</span><span class="icon">🏠</span><strong>Halaman Utama</strong><small>Kembali ke halaman depan website</small></a>
+</section>
+<div class="bottom-row"><div class="hint">Pastikan kamu menggunakan akun pengelola yang benar.<br>Keluar jika selesai menggunakan perangkat bersama.</div><button class="logout" id="logoutBtn" type="button">🚪 Keluar</button></div>
+</main><footer>© BANCONG GASSMINTON · Bersama, sehat, dan sportif.</footer>
+<script>
+const SUPABASE_URL='https://vyrypjxuhiywvkeiewpd.supabase.co';
+const SUPABASE_KEY='sb_publishable_pRU3ZWYBomp_vQoUaI6Tzg_TbxqrYby';
+const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const statusEl=document.getElementById('statusAkun'),dotEl=document.getElementById('statusDot'),errorBox=document.getElementById('errorBox');
+function showError(message){errorBox.textContent=message;errorBox.style.display='block'}
+async function checkAdmin(){statusEl.textContent='Memeriksa sesi login...';dotEl.style.background='#f3b63f';try{const {data,error}=await client.auth.getSession();if(error)throw error;const session=data.session;if(!session||!session.user){statusEl.textContent='Belum login. Mengarahkan ke halaman masuk...';window.location.replace('anggota-login.html');return}const role=session.user.app_metadata&&session.user.app_metadata.role;if(role!=='admin'){statusEl.textContent='Akun ini bukan Admin.';dotEl.style.background='#ff4d57';showError('Akses dashboard pengelola memerlukan akun Admin. Jika kamu memang admin tetapi ditolak, periksa peran akun di Supabase Authentication.');return}statusEl.textContent='Login sebagai Admin · '+(session.user.email||'akun terverifikasi');dotEl.style.background='#35c979'}catch(err){console.error('Pemeriksaan akun gagal:',err);statusEl.textContent='Tidak dapat memeriksa akun.';dotEl.style.background='#ff4d57';showError('Pemeriksaan login gagal. Periksa koneksi internet dan konfigurasi Supabase, lalu muat ulang halaman.')}}
+document.getElementById('logoutBtn').addEventListener('click',async()=>{const button=document.getElementById('logoutBtn');button.disabled=true;button.textContent='Sedang keluar...';try{const {error}=await client.auth.signOut();if(error)throw error;window.location.replace('anggota-login.html')}catch(err){console.error('Logout gagal:',err);button.disabled=false;button.textContent='🚪 Keluar';showError('Belum berhasil keluar. Coba lagi setelah koneksi internet stabil.')}});
+checkAdmin();
+</script></body></html>
