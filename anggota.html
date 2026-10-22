@@ -3,294 +3,251 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Portal Anggota Bancong Gassminton</title>
+  <meta name="theme-color" content="#090b0e">
+  <title>Portal Anggota | Bancong Gassminton</title>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  
-    <style>
-  :root {
-    --bg: #090b0e;
-    --panel: #14181e;
-    --panel2: #1c222a;
-    --red: #f12b3d;
-    --red-dark: #a90f21;
-    --text: #f5f7fa;
-    --muted: #a5afbc;
-    --border: #2b333e;
-    --green: #42d392;
-  }
 
-  * {
-    box-sizing: border-box;
-  }
+  <style>
+    :root {
+      --bg: #090b0e;
+      --panel: #14181e;
+      --panel2: #1c222a;
+      --red: #f12b3d;
+      --red-dark: #a90f21;
+      --text: #f5f7fa;
+      --muted: #a5afbc;
+      --border: #2b333e;
+    }
 
-  html {
-    scroll-behavior: smooth;
-  }
+    * {
+      box-sizing: border-box;
+    }
 
-  body {
-    margin: 0;
-    padding: 16px;
-    background:
-      radial-gradient(
-        circle at top right,
-        #341018 0,
-        transparent 32%
-      ),
-      var(--bg);
-    color: var(--text);
-    font-family: Arial, Helvetica, sans-serif;
-    line-height: 1.6;
-  }
+    html {
+      scroll-behavior: smooth;
+    }
 
-  .container {
-    width: 100%;
-    max-width: 1050px;
-    margin: 0 auto;
-  }
-
-  header {
-    position: relative;
-    overflow: hidden;
-    padding: 28px 22px;
-    margin-bottom: 20px;
-    border: 1px solid #3b2930;
-    border-top: 4px solid var(--red);
-    border-radius: 20px;
-    background: linear-gradient(
-      135deg,
-      #20252d,
-      #111419 65%,
-      #321018
-    );
-    box-shadow: 0 12px 35px #0005;
-  }
-
-  header::after {
-    content: "🏸";
-    position: absolute;
-    right: 18px;
-    bottom: -20px;
-    font-size: 90px;
-    opacity: 0.13;
-    transform: rotate(-25deg);
-    pointer-events: none;
-  }
-
-  h1 {
-    position: relative;
-    z-index: 1;
-    margin: 0 0 8px;
-    color: #fff;
-    font-size: clamp(23px, 5vw, 34px);
-    font-weight: 800;
-    letter-spacing: 1px;
-    line-height: 1.25;
-  }
-
-  header p {
-    position: relative;
-    z-index: 1;
-    margin: 0;
-    color: var(--muted);
-    font-size: 14px;
-  }
-
-  h2 {
-    margin: 0 0 14px;
-    color: #fff;
-    font-size: 18px;
-    font-weight: 700;
-  }
-
-  .card {
-    min-width: 0;
-    margin-bottom: 16px;
-    padding: 20px;
-    overflow: hidden;
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    background: linear-gradient(
-      145deg,
-      var(--panel),
-      #101318
-    );
-    box-shadow: 0 8px 22px #0003;
-  }
-
-  .card h2::before {
-    content: "";
-    display: inline-block;
-    width: 4px;
-    height: 17px;
-    margin-right: 9px;
-    border-radius: 5px;
-    background: var(--red);
-    vertical-align: -3px;
-  }
-
-  .status {
-    padding: 14px;
-    border: 1px solid #2b323b;
-    border-radius: 12px;
-    background: var(--panel2);
-    color: var(--text);
-    font-size: 14px;
-    overflow-wrap: anywhere;
-  }
-
-  #welcomeText {
-    color: var(--muted);
-    overflow-wrap: anywhere;
-  }
-
-  .button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 44px;
-    margin: 5px 5px 5px 0;
-    padding: 11px 18px;
-    border: 0;
-    border-radius: 10px;
-    background: linear-gradient(
-      135deg,
-      var(--red),
-      var(--red-dark)
-    );
-    color: white;
-    font-size: 14px;
-    font-weight: 700;
-    text-decoration: none;
-    cursor: pointer;
-    transition: transform 0.2s, opacity 0.2s;
-  }
-
-  .button:active {
-    transform: scale(0.97);
-  }
-
-  .button.secondary {
-    background: #303741;
-  }
-
-  .table-wrap {
-    width: 100%;
-    max-width: 100%;
-    overflow-x: auto;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    background: #171c23;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  table {
-    width: 100%;
-    min-width: 460px;
-    border-collapse: collapse;
-    margin: 0;
-    font-size: 14px;
-  }
-
-  th,
-  td {
-    padding: 13px 14px;
-    border-bottom: 1px solid #303640;
-    text-align: left;
-    vertical-align: top;
-    overflow-wrap: anywhere;
-  }
-
-  th {
-    background: #222832;
-    color: #ff6573;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.3px;
-  }
-
-  tr:last-child td {
-    border-bottom: 0;
-  }
-
-  tbody tr:hover {
-    background: #202630;
-  }
-
-  .hidden {
-    display: none !important;
-  }
-
-  .muted {
-    color: var(--muted);
-    font-size: 13px;
-  }
-
-  footer {
-    padding: 22px 10px;
-    color: var(--muted);
-    text-align: center;
-    font-size: 12px;
-  }
-
-  @media (min-width: 700px) {
     body {
-      padding: 28px;
+      margin: 0;
+      padding: 16px;
+      background:
+        radial-gradient(circle at top right, #341018 0, transparent 32%),
+        var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.6;
     }
 
     .container {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 16px;
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
     }
 
-    header,
-    #statusBox,
-    #loginBox,
-    #portal,
-    footer {
-      grid-column: 1 / -1;
+    header {
+      position: relative;
+      overflow: hidden;
+      padding: 28px 22px;
+      margin-bottom: 18px;
+      border: 1px solid #3b2930;
+      border-top: 4px solid var(--red);
+      border-radius: 20px;
+      background: linear-gradient(135deg, #20252d, #111419 65%, #321018);
+      box-shadow: 0 12px 35px #0005;
     }
 
-    #portal {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 16px;
-      align-items: start;
+    header::after {
+      content: "🏸";
+      position: absolute;
+      right: 15px;
+      bottom: -20px;
+      font-size: 90px;
+      opacity: 0.13;
+      transform: rotate(-25deg);
+      pointer-events: none;
     }
 
-    #portal > .card {
-      margin-bottom: 0;
+    h1 {
+      position: relative;
+      z-index: 1;
+      margin: 0 0 8px;
+      font-size: clamp(23px, 5vw, 34px);
+      font-weight: 800;
+      letter-spacing: 1px;
+      line-height: 1.3;
     }
 
-    #portal > .card:first-child {
-      grid-column: 1 / -1;
-    }
-  }
-
-  @media (max-width: 380px) {
-    body {
-      padding: 10px;
-    }
-
-    header,
-    .card {
-      padding: 16px;
-      border-radius: 14px;
+    header p {
+      position: relative;
+      z-index: 1;
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
     }
 
     h2 {
-      font-size: 16px;
+      margin: 0 0 14px;
+      color: #fff;
+      font-size: 18px;
     }
-  }
-</style>
+
+    .card {
+      min-width: 0;
+      margin-bottom: 16px;
+      padding: 20px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: linear-gradient(145deg, var(--panel), #101318);
+      box-shadow: 0 8px 22px #0003;
+    }
+
+    .card h2::before {
+      content: "";
+      display: inline-block;
+      width: 4px;
+      height: 17px;
+      margin-right: 9px;
+      border-radius: 5px;
+      background: var(--red);
+      vertical-align: -3px;
+    }
+
+    .status {
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--panel2);
+      font-size: 14px;
+      overflow-wrap: anywhere;
+    }
+
+    #welcomeText {
+      color: var(--muted);
+      overflow-wrap: anywhere;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      margin: 5px 5px 5px 0;
+      padding: 11px 18px;
+      border: 0;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--red), var(--red-dark));
+      color: white;
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .button:active {
+      transform: scale(0.98);
+    }
+
+    .button.secondary {
+      background: #303741;
+    }
+
+    .table-wrap {
+      width: 100%;
+      max-width: 100%;
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #171c23;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+      width: 100%;
+      min-width: 420px;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th,
+    td {
+      padding: 12px;
+      border-bottom: 1px solid #303640;
+      text-align: left;
+      vertical-align: top;
+      overflow-wrap: anywhere;
+    }
+
+    th {
+      background: #222832;
+      color: #ff6573;
+      font-size: 12px;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: 0;
+    }
+
+    tbody tr:hover {
+      background: #202630;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    footer {
+      padding: 22px 10px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 12px;
+    }
+
+    @media (min-width: 700px) {
+      body {
+        padding: 28px;
+      }
+
+      #portal {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+        align-items: start;
+      }
+
+      #portal > .card {
+        margin-bottom: 0;
+      }
+
+      #portal > .card:first-child {
+        grid-column: 1 / -1;
+      }
+    }
+
+    @media (max-width: 380px) {
+      body {
+        padding: 10px;
+      }
+
+      header,
+      .card {
+        padding: 16px;
+        border-radius: 14px;
+      }
+
+      h2 {
+        font-size: 16px;
+      }
+    }
+  </style>
 </head>
 
 <body>
   <main class="container">
 
     <header>
-      <h1>BANCONG GASSMINTON</h1>
+      <h1>🏸 BANCONG GASSMINTON</h1>
       <p>Portal Anggota Dusun 2 Datar Bancong</p>
     </header>
 
@@ -303,9 +260,7 @@
     <section id="loginBox" class="card hidden">
       <h2>Login Anggota</h2>
       <p>Silakan login terlebih dahulu untuk membuka portal anggota.</p>
-      <a href="anggota-login.html" class="button">
-        Login Sekarang
-      </a>
+      <a href="anggota-login.html" class="button">Login Sekarang</a>
     </section>
 
     <div id="portal" class="hidden">
@@ -313,377 +268,320 @@
       <section class="card">
         <h2>Selamat Datang!</h2>
         <p id="welcomeText">Anggota Bancong Gassminton</p>
-        <button id="logoutBtn" class="button">
-          Keluar
-        </button>
+        <button id="logoutBtn" class="button">Keluar</button>
       </section>
 
       <section class="card">
         <h2>Daftar Anggota</h2>
-        <div id="membersBox" class="status">
-          Memuat daftar anggota...
-        </div>
+        <div id="membersBox" class="status">Memuat daftar anggota...</div>
       </section>
 
       <section class="card">
         <h2>Jadwal Kegiatan</h2>
-        <div id="schedulesBox" class="status">
-          Memuat jadwal...
-        </div>
+        <div id="schedulesBox" class="status">Memuat jadwal...</div>
       </section>
 
       <section class="card">
         <h2>Turnamen</h2>
-        <div id="tournamentsBox" class="status">
-          Memuat turnamen...
-        </div>
+        <div id="tournamentsBox" class="status">Memuat turnamen...</div>
       </section>
 
       <section class="card">
         <h2>Pertandingan</h2>
-        <div id="matchesBox" class="status">
-          Memuat pertandingan...
-        </div>
+        <div id="matchesBox" class="status">Memuat pertandingan...</div>
       </section>
 
       <section class="card">
         <h2>Kas Organisasi</h2>
-        <div id="cashBox" class="status">
-          Memuat informasi kas...
-        </div>
+        <div id="cashBox" class="status">Memuat informasi kas...</div>
       </section>
 
       <section class="card">
         <h2>Arisan Anggota</h2>
-        <div id="arisanBox" class="status">
-          Memuat informasi arisan...
-        </div>
+        <div id="arisanBox" class="status">Memuat informasi arisan...</div>
       </section>
 
     </div>
 
-    <footer>
-      Bancong Gassminton — Datar Bancong
-    </footer>
-
+    <footer>Bancong Gassminton — Datar Bancong</footer>
   </main>
+
   <script>
-  const SUPABASE_URL =
-    "https://vyrypjxuhiywvkeiewpd.supabase.co";
+    const SUPABASE_URL =
+      "https://vyrypjxuhiywvkeiewpd.supabase.co";
 
-  const SUPABASE_KEY =
-    "sb_publishable_pRU3ZWYBomp_vQoUaI6Tzg_TbxqrYby";
+    const SUPABASE_KEY =
+      "sb_publishable_pRU3ZWYBomp_vQoUaI6Tzg_TbxqrYby";
 
-  const statusText = document.getElementById("statusText");
-  const statusBox = document.getElementById("statusBox");
-  const loginBox = document.getElementById("loginBox");
-  const portal = document.getElementById("portal");
+    const statusText = document.getElementById("statusText");
+    const statusBox = document.getElementById("statusBox");
+    const loginBox = document.getElementById("loginBox");
+    const portal = document.getElementById("portal");
 
-  function setStatus(message) {
-    statusText.textContent = message;
-  }
+    let db;
 
-  function showLogin(message) {
-    statusBox.classList.remove("hidden");
-    loginBox.classList.remove("hidden");
-    portal.classList.add("hidden");
-    setStatus(message);
-  }
-
-  function showPortal() {
-    statusBox.classList.add("hidden");
-    loginBox.classList.add("hidden");
-    portal.classList.remove("hidden");
-  }
-
-  function withTimeout(promise, seconds = 12) {
-    return Promise.race([
-      promise,
-      new Promise((_, reject) => {
-        setTimeout(() => {
-          reject(new Error("Waktu koneksi habis. Periksa internet."));
-        }, seconds * 1000);
-      })
-    ]);
-  }
-
-  function escapeHTML(value) {
-    return String(value ?? "").replace(/[&<>"']/g, char => ({
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#39;"
-    })[char]);
-  }
-
-  function formatDate(value) {
-    if (!value) return "-";
-
-    const date = new Date(value);
-
-    if (Number.isNaN(date.getTime())) {
-      return String(value);
+    function withTimeout(promise, seconds = 12) {
+      return Promise.race([
+        promise,
+        new Promise((_, reject) => {
+          setTimeout(() => {
+            reject(new Error("Koneksi terlalu lama. Periksa internet."));
+          }, seconds * 1000);
+        })
+      ]);
     }
 
-    return date.toLocaleDateString("id-ID", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric"
-    });
-  }
-
-  function renderTable(elementId, columns, rows) {
-    const box = document.getElementById(elementId);
-
-    if (!rows || rows.length === 0) {
-      box.textContent = "Belum ada data.";
-      return;
+    function setStatus(message) {
+      statusText.textContent = message;
     }
 
-    const table = document.createElement("table");
-    const thead = document.createElement("thead");
-    const headerRow = document.createElement("tr");
+    function showLogin(message) {
+      statusBox.classList.remove("hidden");
+      loginBox.classList.remove("hidden");
+      portal.classList.add("hidden");
+      setStatus(message);
+    }
 
-    columns.forEach(column => {
-      const th = document.createElement("th");
-      th.textContent = column.label;
-      headerRow.appendChild(th);
-    });
+    function showPortal() {
+      statusBox.classList.add("hidden");
+      loginBox.classList.add("hidden");
+      portal.classList.remove("hidden");
+    }
 
-    thead.appendChild(headerRow);
-    table.appendChild(thead);
+    function formatDate(value) {
+      if (!value) return "-";
 
-    const tbody = document.createElement("tbody");
+      const date = new Date(value);
 
-    rows.forEach(row => {
-      const tr = document.createElement("tr");
+      if (Number.isNaN(date.getTime())) {
+        return String(value);
+      }
+
+      return date.toLocaleDateString("id-ID", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric"
+      });
+    }
+
+    function renderTable(elementId, columns, rows) {
+      const box = document.getElementById(elementId);
+
+      if (!rows || rows.length === 0) {
+        box.textContent = "Belum ada data.";
+        return;
+      }
+
+      const table = document.createElement("table");
+      const thead = document.createElement("thead");
+      const headerRow = document.createElement("tr");
 
       columns.forEach(column => {
-        const td = document.createElement("td");
-        const value = row[column.key];
-        td.textContent = column.date
-          ? formatDate(value)
-          : String(value ?? "-");
-        tr.appendChild(td);
+        const th = document.createElement("th");
+        th.textContent = column.label;
+        headerRow.appendChild(th);
       });
 
-      tbody.appendChild(tr);
-    });
+      thead.appendChild(headerRow);
+      table.appendChild(thead);
 
-    table.appendChild(tbody);
+      const tbody = document.createElement("tbody");
 
-    box.replaceChildren();
+      rows.forEach(row => {
+        const tr = document.createElement("tr");
 
-    const wrap = document.createElement("div");
-    wrap.className = "table-wrap";
-    wrap.appendChild(table);
-    box.appendChild(wrap);
-  }
+        columns.forEach(column => {
+          const td = document.createElement("td");
+          const value = row[column.key];
 
-  async function loadMembers(db) {
-    const box = document.getElementById("membersBox");
-    box.textContent = "Memuat daftar anggota...";
+          td.textContent = column.date
+            ? formatDate(value)
+            : String(value ?? "-");
 
-    try {
-      const result = await withTimeout(
-        db.from("members")
-          .select("nama_anggota,dusun,tanggal_pendaftaran")
-          .order("nama_anggota"),
-        12
-      );
+          tr.appendChild(td);
+        });
 
-      if (result.error) throw result.error;
+        tbody.appendChild(tr);
+      });
 
-      renderTable("membersBox", [
-        { key: "nama_anggota", label: "Nama Anggota" },
-        { key: "dusun", label: "Dusun" },
-        { key: "tanggal_pendaftaran", label: "Tanggal Daftar", date: true }
-      ], result.data);
+      table.appendChild(tbody);
 
-    } catch (error) {
-      box.textContent =
-        "Gagal memuat anggota: " + (error.message || "Kesalahan tidak diketahui");
+      const wrap = document.createElement("div");
+      wrap.className = "table-wrap";
+      wrap.appendChild(table);
+
+      box.replaceChildren(wrap);
     }
-  }
 
-  async function loadTable(db, tableName, elementId, columns) {
-    const box = document.getElementById(elementId);
-    box.textContent = "Memuat data...";
+    async function loadMembers() {
+      const box = document.getElementById("membersBox");
 
-    try {
-      const result = await withTimeout(
-        db.from(tableName).select("*").limit(100),
-        12
-      );
-
-      if (result.error) throw result.error;
-
-      renderTable(elementId, columns, result.data);
-
-    } catch (error) {
-      box.textContent =
-        "Data belum dapat dimuat: " + (error.message || "Periksa akses tabel.");
-    }
-  }
-  </script>
-  <script>
-  async function init() {
-    try {
-      // Pastikan pustaka Supabase berhasil dimuat.
-      if (!window.supabase || !window.supabase.createClient) {
-        throw new Error(
-          "Pustaka Supabase gagal dimuat. Periksa koneksi internet."
-        );
-      }
-
-      setStatus("Menghubungkan ke server...");
-
-      const db = window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_KEY
-      );
-
-      const sessionResult = await withTimeout(
-        db.auth.getSession(),
-        12
-      );
-
-      if (sessionResult.error) {
-        throw sessionResult.error;
-      }
-
-      const session = sessionResult.data.session;
-
-      if (!session) {
-        showLogin("Kamu belum login. Silakan login terlebih dahulu.");
-        return;
-      }
-
-      setStatus("Memeriksa akun...");
-
-      const userResult = await withTimeout(
-        db.auth.getUser(),
-        12
-      );
-
-      if (userResult.error) {
-        throw userResult.error;
-      }
-
-      const user = userResult.data.user;
-
-      if (!user) {
-        showLogin("Sesi login tidak ditemukan. Silakan login kembali.");
-        return;
-      }
-
-      // Jika akun adalah admin, arahkan ke dashboard admin.
-      if (user.app_metadata?.role === "admin") {
-        window.location.href = "dashboard.html";
-        return;
-      }
-
-      document.getElementById("welcomeText").textContent =
-        "Login sebagai: " + (user.email || "Anggota");
-
-      showPortal();
-
-      // Muat data secara terpisah agar satu kegagalan
-      // tidak menghentikan seluruh portal.
-      await Promise.all([
-        loadMembers(db),
-
-        loadTable(
-          db,
-          "schedules",
-          "schedulesBox",
-          [
-            { key: "tanggal", label: "Tanggal", date: true },
-            { key: "kegiatan", label: "Kegiatan" },
-            { key: "keterangan", label: "Keterangan" }
-          ]
-        ),
-
-        loadTable(
-          db,
-          "tournaments",
-          "tournamentsBox",
-          [
-            { key: "nama", label: "Nama Turnamen" },
-            { key: "tanggal", label: "Tanggal", date: true },
-            { key: "status", label: "Status" }
-          ]
-        ),
-
-        loadTable(
-          db,
-          "matches",
-          "matchesBox",
-          [
-            { key: "tanggal", label: "Tanggal", date: true },
-            { key: "pemain1", label: "Pemain 1" },
-            { key: "pemain2", label: "Pemain 2" },
-            { key: "status", label: "Status" }
-          ]
-        ),
-
-        loadTable(
-          db,
-          "cash_transactions",
-          "cashBox",
-          [
-            { key: "tanggal", label: "Tanggal", date: true },
-            { key: "jenis", label: "Jenis" },
-            { key: "jumlah", label: "Jumlah" },
-            { key: "keterangan", label: "Keterangan" }
-          ]
-        ),
-
-        loadTable(
-          db,
-          "arisan_payments",
-          "arisanBox",
-          [
-            { key: "tanggal", label: "Tanggal", date: true },
-            { key: "nama_anggota", label: "Nama Anggota" },
-            { key: "jumlah", label: "Jumlah" },
-            { key: "status", label: "Status" }
-          ]
-        )
-      ]);
-
-    } catch (error) {
-      console.error("Kesalahan portal:", error);
-
-      showLogin(
-        "Tidak dapat membuka portal: " +
-        (error.message || "Terjadi kesalahan.")
-      );
-    }
-  }
-
-  document.getElementById("logoutBtn").addEventListener(
-    "click",
-    async function () {
       try {
-        const db = window.supabase.createClient(
+        const result = await withTimeout(
+          db.from("members")
+            .select("nama_anggota,dusun,tanggal_pendaftaran")
+            .order("nama_anggota"),
+          12
+        );
+
+        if (result.error) throw result.error;
+
+        renderTable("membersBox", [
+          { key: "nama_anggota", label: "Nama Anggota" },
+          { key: "dusun", label: "Dusun" },
+          {
+            key: "tanggal_pendaftaran",
+            label: "Tanggal Daftar",
+            date: true
+          }
+        ], result.data);
+
+      } catch (error) {
+        box.textContent =
+          "Gagal memuat anggota: " +
+          (error.message || "Periksa izin akses Supabase.");
+      }
+    }
+
+    async function loadTable(tableName, elementId, columns) {
+      const box = document.getElementById(elementId);
+
+      try {
+        const result = await withTimeout(
+          db.from(tableName).select("*").limit(100),
+          12
+        );
+
+        if (result.error) throw result.error;
+
+        renderTable(elementId, columns, result.data);
+
+      } catch (error) {
+        box.textContent =
+          "Data belum dapat dimuat: " +
+          (error.message || "Periksa izin akses tabel.");
+      }
+    }
+
+    async function init() {
+      try {
+        if (!window.supabase || !window.supabase.createClient) {
+          throw new Error(
+            "Pustaka Supabase gagal dimuat. Periksa koneksi internet."
+          );
+        }
+
+        setStatus("Menghubungkan ke server...");
+
+        db = window.supabase.createClient(
           SUPABASE_URL,
           SUPABASE_KEY
         );
 
-        await db.auth.signOut();
-        window.location.href = "anggota-login.html";
+        const sessionResult = await withTimeout(
+          db.auth.getSession(),
+          12
+        );
+
+        if (sessionResult.error) throw sessionResult.error;
+
+        const session = sessionResult.data.session;
+
+        if (!session) {
+          showLogin("Kamu belum login. Silakan login terlebih dahulu.");
+          return;
+        }
+
+        setStatus("Memeriksa akun...");
+
+        const userResult = await withTimeout(
+          db.auth.getUser(),
+          12
+        );
+
+        if (userResult.error) throw userResult.error;
+
+        const user = userResult.data.user;
+
+        if (!user) {
+          showLogin("Sesi login tidak ditemukan. Silakan login kembali.");
+          return;
+        }
+
+        if (user.app_metadata?.role === "admin") {
+          window.location.href = "dashboard.html";
+          return;
+        }
+
+        document.getElementById("welcomeText").textContent =
+          "Login sebagai: " + (user.email || "Anggota");
+
+        showPortal();
+
+        await Promise.all([
+          loadMembers(),
+
+          loadTable("schedules", "schedulesBox", [
+            { key: "tanggal", label: "Tanggal", date: true },
+            { key: "kegiatan", label: "Kegiatan" },
+            { key: "keterangan", label: "Keterangan" }
+          ]),
+
+          loadTable("tournaments", "tournamentsBox", [
+            { key: "nama", label: "Nama Turnamen" },
+            { key: "tanggal", label: "Tanggal", date: true },
+            { key: "status", label: "Status" }
+          ]),
+
+          loadTable("matches", "matchesBox", [
+            { key: "tanggal", label: "Tanggal", date: true },
+            { key: "pemain1", label: "Pemain 1" },
+            { key: "pemain2", label: "Pemain 2" },
+            { key: "status", label: "Status" }
+          ]),
+
+          loadTable("cash_transactions", "cashBox", [
+            { key: "tanggal", label: "Tanggal", date: true },
+            { key: "jenis", label: "Jenis" },
+            { key: "jumlah", label: "Jumlah" },
+            { key: "keterangan", label: "Keterangan" }
+          ]),
+
+          loadTable("arisan_payments", "arisanBox", [
+            { key: "tanggal", label: "Tanggal", date: true },
+            { key: "nama_anggota", label: "Nama Anggota" },
+            { key: "jumlah", label: "Jumlah" },
+            { key: "status", label: "Status" }
+          ])
+        ]);
 
       } catch (error) {
-        alert("Gagal keluar: " + error.message);
+        console.error("Kesalahan portal:", error);
+
+        showLogin(
+          "Tidak dapat membuka portal: " +
+          (error.message || "Terjadi kesalahan.")
+        );
       }
     }
-  );
 
-  // Mulai aplikasi setelah semua bagian HTML tersedia.
-  init();
-</script>
+    document.getElementById("logoutBtn").addEventListener(
+      "click",
+      async function () {
+        try {
+          if (db) {
+            await db.auth.signOut();
+          }
 
+          window.location.href = "anggota-login.html";
+
+        } catch (error) {
+          alert("Gagal keluar: " + error.message);
+        }
+      }
+    );
+
+    init();
+  </script>
 </body>
 </html>
