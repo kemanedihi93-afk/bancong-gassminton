@@ -1,229 +1,521 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Portal Anggota | Bancong Gassminton</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal Anggota Bancong Gassminton</title>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<style>
-* {
-  box-sizing: border-box;
-}
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-body {
-  margin: 0;
-  padding: 16px;
-  background: #101820;
-  color: #fff;
-  font-family: Arial, sans-serif;
-}
+    body {
+      margin: 0;
+      padding: 16px;
+      background: #101010;
+      color: #ffffff;
+      font-family: Arial, sans-serif;
+    }
 
-.container {
-  max-width: 850px;
-  margin: auto;
-}
+    .container {
+      max-width: 900px;
+      margin: auto;
+    }
 
-header {
-  text-align: center;
-  padding: 25px 0;
-}
+    header {
+      padding: 22px 16px;
+      text-align: center;
+      background: #1c1c1c;
+      border: 1px solid #333;
+      border-radius: 14px;
+      margin-bottom: 16px;
+    }
 
-h1 {
-  color: #ff4545;
-}
+    h1 {
+      color: #ff4242;
+      margin: 0 0 8px;
+      font-size: 25px;
+    }
 
-h2 {
-  font-size: 21px;
-}
+    h2 {
+      font-size: 19px;
+      color: #ff6666;
+    }
 
-.card {
-  background: #1d2935;
-  padding: 18px;
-  border-radius: 12px;
-  margin: 15px 0;
-  overflow-wrap: anywhere;
-}
+    .card {
+      background: #1c1c1c;
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+      overflow-wrap: anywhere;
+    }
 
-button {
-  background: #e83232;
-  color: white;
-  border: 0;
-  padding: 12px 16px;
-  margin: 5px 5px 5px 0;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-}
+    .status {
+      padding: 14px;
+      border-radius: 8px;
+      background: #292929;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+    }
 
-.secondary {
-  background: #34495e;
-}
+    .button {
+      display: inline-block;
+      padding: 11px 16px;
+      border: 0;
+      border-radius: 8px;
+      background: #e53935;
+      color: white;
+      text-decoration: none;
+      font-size: 15px;
+      cursor: pointer;
+      margin: 4px 4px 4px 0;
+    }
 
-a {
-  color: #ff8585;
-}
+    .button.secondary {
+      background: #444;
+    }
 
-.item {
-  border: 1px solid #465463;
-  padding: 12px;
-  border-radius: 9px;
-  margin: 10px 0;
-  overflow-wrap: anywhere;
-}
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+    }
 
-.item h3 {
-  color: #ff7777;
-  margin-top: 0;
-}
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
 
-.muted {
-  color: #cbd5e1;
-}
+    th, td {
+      border-bottom: 1px solid #393939;
+      padding: 10px 8px;
+      text-align: left;
+    }
 
-.message {
-  padding: 12px;
-  background: #263747;
-  border-radius: 8px;
-  overflow-wrap: anywhere;
-}
+    th {
+      color: #ff7777;
+    }
 
-.hidden {
-  display: none;
-}
+    .hidden {
+      display: none !important;
+    }
 
-@media (max-width: 480px) {
-  body {
-    padding: 10px;
-  }
+    .muted {
+      color: #bdbdbd;
+      font-size: 14px;
+    }
 
-  .card {
-    padding: 14px;
-  }
-
-  button {
-    max-width: 100%;
-  }
-}
-</style>
+    footer {
+      text-align: center;
+      padding: 18px;
+      color: #999;
+      font-size: 13px;
+    }
+  </style>
 </head>
 
 <body>
-<div class="container">
+  <main class="container">
 
-<header>
-  <h1>🏸 BANCONG GASSMINTON</h1>
-  <p class="muted">PORTAL ANGGOTA DATAR BANCONG</p>
-</header>
+    <header>
+      <h1>BANCONG GASSMINTON</h1>
+      <p>Portal Anggota Dusun 2 Datar Bancong</p>
+    </header>
 
-<div id="loading" class="card">
-  Memeriksa login...
-</div>
+    <section id="statusBox" class="card">
+      <div id="statusText" class="status">
+        Memeriksa login...
+      </div>
+    </section>
 
-<main id="app" class="hidden">
+    <section id="loginBox" class="card hidden">
+      <h2>Login Anggota</h2>
+      <p>Silakan login terlebih dahulu untuk membuka portal anggota.</p>
+      <a href="anggota-login.html" class="button">
+        Login Sekarang
+      </a>
+    </section>
 
-  <section class="card">
-    <h2>Selamat datang!</h2>
-    <p id="account"></p>
-    <p class="muted">
-      Portal anggota Bancong Gassminton.
-      Data ditampilkan sesuai izin akses akun.
-    </p>
+    <div id="portal" class="hidden">
 
-    <button id="logout">Keluar</button>
-    <button class="secondary"
-      onclick="location.href='index.html'">
-      Beranda
-    </button>
-  </section>
+      <section class="card">
+        <h2>Selamat Datang!</h2>
+        <p id="welcomeText">Anggota Bancong Gassminton</p>
+        <button id="logoutBtn" class="button">
+          Keluar
+        </button>
+      </section>
 
-  <section class="card">
-    <h2>📅 Jadwal Kegiatan</h2>
-    <div id="schedules">Memuat jadwal...</div>
-  </section>
+      <section class="card">
+        <h2>Daftar Anggota</h2>
+        <div id="membersBox" class="status">
+          Memuat daftar anggota...
+        </div>
+      </section>
 
-  <section class="card">
-    <h2>🏆 Turnamen</h2>
-    <div id="tournaments">Memuat turnamen...</div>
-  </section>
+      <section class="card">
+        <h2>Jadwal Kegiatan</h2>
+        <div id="schedulesBox" class="status">
+          Memuat jadwal...
+        </div>
+      </section>
 
-  <section class="card">
-    <h2>🏸 Hasil Pertandingan</h2>
-    <div id="matches">Memuat pertandingan...</div>
-  </section>
+      <section class="card">
+        <h2>Turnamen</h2>
+        <div id="tournamentsBox" class="status">
+          Memuat turnamen...
+        </div>
+      </section>
 
-  <section class="card">
-    <h2>👥 Data Anggota</h2>
-    <div id="members">Memuat data anggota...</div>
-  </section>
+      <section class="card">
+        <h2>Pertandingan</h2>
+        <div id="matchesBox" class="status">
+          Memuat pertandingan...
+        </div>
+      </section>
 
-  <section class="card">
-    <h2>💰 Ringkasan Kas</h2>
-    <div id="cash">Memuat ringkasan kas...</div>
-  </section>
+      <section class="card">
+        <h2>Kas Organisasi</h2>
+        <div id="cashBox" class="status">
+          Memuat informasi kas...
+        </div>
+      </section>
 
-  <section class="card">
-    <h2>🤝 Ringkasan Arisan</h2>
-    <div id="arisan">Memuat ringkasan arisan...</div>
-  </section>
+      <section class="card">
+        <h2>Arisan Anggota</h2>
+        <div id="arisanBox" class="status">
+          Memuat informasi arisan...
+        </div>
+      </section>
 
-</main>
-</div>
+    </div>
 
-<script>
-"use strict";
+    <footer>
+      Bancong Gassminton — Datar Bancong
+    </footer>
 
-/* KONFIGURASI SUPABASE */
-const SUPABASE_URL =
-  "https://vyrypjxuhiywvkeiewpd.supabase.co";
+  </main>
+  <script>
+  const SUPABASE_URL =
+    "https://vyrypjxuhiywvkeiewpd.supabase.co";
 
-const SUPABASE_KEY =
-  "sb_publishable_pRU3ZWYBomp_vQoUaI6Tzg_TbxqrYby";
+  const SUPABASE_KEY =
+    "sb_publishable_pRU3ZWYBomp_vQoUaI6Tzg_TbxqrYby";
 
-const db = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
-);
+  const statusText = document.getElementById("statusText");
+  const statusBox = document.getElementById("statusBox");
+  const loginBox = document.getElementById("loginBox");
+  const portal = document.getElementById("portal");
 
-const $ = id => document.getElementById(id);
+  function setStatus(message) {
+    statusText.textContent = message;
+  }
 
-/* BATAS WAKTU PERMINTAAN */
-async function withTimeout(promise, seconds = 12) {
-  let timer;
+  function showLogin(message) {
+    statusBox.classList.remove("hidden");
+    loginBox.classList.remove("hidden");
+    portal.classList.add("hidden");
+    setStatus(message);
+  }
 
-  try {
-    return await Promise.race([
+  function showPortal() {
+    statusBox.classList.add("hidden");
+    loginBox.classList.add("hidden");
+    portal.classList.remove("hidden");
+  }
+
+  function withTimeout(promise, seconds = 12) {
+    return Promise.race([
       promise,
       new Promise((_, reject) => {
-        timer = setTimeout(() => {
-          reject(new Error(
-            "Koneksi terlalu lama. Periksa internet lalu muat ulang."
-          ));
+        setTimeout(() => {
+          reject(new Error("Waktu koneksi habis. Periksa internet."));
         }, seconds * 1000);
       })
     ]);
-  } finally {
-    clearTimeout(timer);
-  }
-}
-
-/* MEMBUAT ELEMEN TEKS YANG AMAN */
-function makeElement(tag, text) {
-  const node = document.createElement(tag);
-  node.textContent = text == null ? "" : String(text);
-  return node;
-}
-
-/* FORMAT TANGGAL */
-function formatDate(value) {
-  if (!value) return "-";
-
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return String(value);
   }
 
-  return date.toLocaleDateString("id-ID", {
-    day
+  function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, char => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;"
+    })[char]);
+  }
+
+  function formatDate(value) {
+    if (!value) return "-";
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+      return String(value);
+    }
+
+    return date.toLocaleDateString("id-ID", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric"
+    });
+  }
+
+  function renderTable(elementId, columns, rows) {
+    const box = document.getElementById(elementId);
+
+    if (!rows || rows.length === 0) {
+      box.textContent = "Belum ada data.";
+      return;
+    }
+
+    const table = document.createElement("table");
+    const thead = document.createElement("thead");
+    const headerRow = document.createElement("tr");
+
+    columns.forEach(column => {
+      const th = document.createElement("th");
+      th.textContent = column.label;
+      headerRow.appendChild(th);
+    });
+
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+
+    const tbody = document.createElement("tbody");
+
+    rows.forEach(row => {
+      const tr = document.createElement("tr");
+
+      columns.forEach(column => {
+        const td = document.createElement("td");
+        const value = row[column.key];
+        td.textContent = column.date
+          ? formatDate(value)
+          : String(value ?? "-");
+        tr.appendChild(td);
+      });
+
+      tbody.appendChild(tr);
+    });
+
+    table.appendChild(tbody);
+
+    box.replaceChildren();
+
+    const wrap = document.createElement("div");
+    wrap.className = "table-wrap";
+    wrap.appendChild(table);
+    box.appendChild(wrap);
+  }
+
+  async function loadMembers(db) {
+    const box = document.getElementById("membersBox");
+    box.textContent = "Memuat daftar anggota...";
+
+    try {
+      const result = await withTimeout(
+        db.from("members")
+          .select("nama_anggota,dusun,tanggal_pendaftaran")
+          .order("nama_anggota"),
+        12
+      );
+
+      if (result.error) throw result.error;
+
+      renderTable("membersBox", [
+        { key: "nama_anggota", label: "Nama Anggota" },
+        { key: "dusun", label: "Dusun" },
+        { key: "tanggal_pendaftaran", label: "Tanggal Daftar", date: true }
+      ], result.data);
+
+    } catch (error) {
+      box.textContent =
+        "Gagal memuat anggota: " + (error.message || "Kesalahan tidak diketahui");
+    }
+  }
+
+  async function loadTable(db, tableName, elementId, columns) {
+    const box = document.getElementById(elementId);
+    box.textContent = "Memuat data...";
+
+    try {
+      const result = await withTimeout(
+        db.from(tableName).select("*").limit(100),
+        12
+      );
+
+      if (result.error) throw result.error;
+
+      renderTable(elementId, columns, result.data);
+
+    } catch (error) {
+      box.textContent =
+        "Data belum dapat dimuat: " + (error.message || "Periksa akses tabel.");
+    }
+  }
+  </script>
+  <script>
+  async function init() {
+    try {
+      // Pastikan pustaka Supabase berhasil dimuat.
+      if (!window.supabase || !window.supabase.createClient) {
+        throw new Error(
+          "Pustaka Supabase gagal dimuat. Periksa koneksi internet."
+        );
+      }
+
+      setStatus("Menghubungkan ke server...");
+
+      const db = window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+      );
+
+      const sessionResult = await withTimeout(
+        db.auth.getSession(),
+        12
+      );
+
+      if (sessionResult.error) {
+        throw sessionResult.error;
+      }
+
+      const session = sessionResult.data.session;
+
+      if (!session) {
+        showLogin("Kamu belum login. Silakan login terlebih dahulu.");
+        return;
+      }
+
+      setStatus("Memeriksa akun...");
+
+      const userResult = await withTimeout(
+        db.auth.getUser(),
+        12
+      );
+
+      if (userResult.error) {
+        throw userResult.error;
+      }
+
+      const user = userResult.data.user;
+
+      if (!user) {
+        showLogin("Sesi login tidak ditemukan. Silakan login kembali.");
+        return;
+      }
+
+      // Jika akun adalah admin, arahkan ke dashboard admin.
+      if (user.app_metadata?.role === "admin") {
+        window.location.href = "dashboard.html";
+        return;
+      }
+
+      document.getElementById("welcomeText").textContent =
+        "Login sebagai: " + (user.email || "Anggota");
+
+      showPortal();
+
+      // Muat data secara terpisah agar satu kegagalan
+      // tidak menghentikan seluruh portal.
+      await Promise.all([
+        loadMembers(db),
+
+        loadTable(
+          db,
+          "schedules",
+          "schedulesBox",
+          [
+            { key: "tanggal", label: "Tanggal", date: true },
+            { key: "kegiatan", label: "Kegiatan" },
+            { key: "keterangan", label: "Keterangan" }
+          ]
+        ),
+
+        loadTable(
+          db,
+          "tournaments",
+          "tournamentsBox",
+          [
+            { key: "nama", label: "Nama Turnamen" },
+            { key: "tanggal", label: "Tanggal", date: true },
+            { key: "status", label: "Status" }
+          ]
+        ),
+
+        loadTable(
+          db,
+          "matches",
+          "matchesBox",
+          [
+            { key: "tanggal", label: "Tanggal", date: true },
+            { key: "pemain1", label: "Pemain 1" },
+            { key: "pemain2", label: "Pemain 2" },
+            { key: "status", label: "Status" }
+          ]
+        ),
+
+        loadTable(
+          db,
+          "cash_transactions",
+          "cashBox",
+          [
+            { key: "tanggal", label: "Tanggal", date: true },
+            { key: "jenis", label: "Jenis" },
+            { key: "jumlah", label: "Jumlah" },
+            { key: "keterangan", label: "Keterangan" }
+          ]
+        ),
+
+        loadTable(
+          db,
+          "arisan_payments",
+          "arisanBox",
+          [
+            { key: "tanggal", label: "Tanggal", date: true },
+            { key: "nama_anggota", label: "Nama Anggota" },
+            { key: "jumlah", label: "Jumlah" },
+            { key: "status", label: "Status" }
+          ]
+        )
+      ]);
+
+    } catch (error) {
+      console.error("Kesalahan portal:", error);
+
+      showLogin(
+        "Tidak dapat membuka portal: " +
+        (error.message || "Terjadi kesalahan.")
+      );
+    }
+  }
+
+  document.getElementById("logoutBtn").addEventListener(
+    "click",
+    async function () {
+      try {
+        const db = window.supabase.createClient(
+          SUPABASE_URL,
+          SUPABASE_KEY
+        );
+
+        await db.auth.signOut();
+        window.location.href = "anggota-login.html";
+
+      } catch (error) {
+        alert("Gagal keluar: " + error.message);
+      }
+    }
+  );
+
+  // Mulai aplikasi setelah semua bagian HTML tersedia.
+  init();
+</script>
+
+</body>
+</html>
