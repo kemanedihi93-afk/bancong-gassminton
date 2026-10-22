@@ -1,587 +1,272 @@
-<!DOCTYPE html>
-<html lang="id">
+<!DOCTYPE html><html lang="id">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#090b0e">
-  <title>Portal Anggota | Bancong Gassminton</title>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <style>
-    :root {
-      --bg: #090b0e;
-      --panel: #14181e;
-      --panel2: #1c222a;
-      --red: #f12b3d;
-      --red-dark: #a90f21;
-      --text: #f5f7fa;
-      --muted: #a5afbc;
-      --border: #2b333e;
-    }
-
+  <meta name="theme-color" content="#101010">
+  <title>Login Anggota | Bancong Gassminton</title>  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>  <style>
     * {
       box-sizing: border-box;
     }
 
-    html {
-      scroll-behavior: smooth;
-    }
-
     body {
       margin: 0;
-      padding: 16px;
-      background:
-        radial-gradient(circle at top right, #341018 0, transparent 32%),
-        var(--bg);
-      color: var(--text);
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-family: Arial, Helvetica, sans-serif;
-      line-height: 1.6;
-    }
-
-    .container {
-      width: 100%;
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-
-    header {
-      position: relative;
-      overflow: hidden;
-      padding: 28px 22px;
-      margin-bottom: 18px;
-      border: 1px solid #3b2930;
-      border-top: 4px solid var(--red);
-      border-radius: 20px;
-      background: linear-gradient(135deg, #20252d, #111419 65%, #321018);
-      box-shadow: 0 12px 35px #0005;
-    }
-
-    header::after {
-      content: "🏸";
-      position: absolute;
-      right: 15px;
-      bottom: -20px;
-      font-size: 90px;
-      opacity: 0.13;
-      transform: rotate(-25deg);
-      pointer-events: none;
-    }
-
-    h1 {
-      position: relative;
-      z-index: 1;
-      margin: 0 0 8px;
-      font-size: clamp(23px, 5vw, 34px);
-      font-weight: 800;
-      letter-spacing: 1px;
-      line-height: 1.3;
-    }
-
-    header p {
-      position: relative;
-      z-index: 1;
-      margin: 0;
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    h2 {
-      margin: 0 0 14px;
       color: #fff;
-      font-size: 18px;
+      background:
+        radial-gradient(circle at top, #461018, transparent 45%),
+        #090909;
     }
 
     .card {
-      min-width: 0;
-      margin-bottom: 16px;
-      padding: 20px;
-      overflow: hidden;
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      background: linear-gradient(145deg, var(--panel), #101318);
-      box-shadow: 0 8px 22px #0003;
+      width: 100%;
+      max-width: 430px;
+      padding: 30px 24px;
+      border: 1px solid #383838;
+      border-top: 5px solid #ed1024;
+      border-radius: 20px;
+      background: #151515;
+      box-shadow: 0 15px 40px #0008;
     }
 
-    .card h2::before {
-      content: "";
-      display: inline-block;
-      width: 4px;
-      height: 17px;
-      margin-right: 9px;
-      border-radius: 5px;
-      background: var(--red);
-      vertical-align: -3px;
+    .logo {
+      text-align: center;
+      font-size: 42px;
+      margin-bottom: 10px;
     }
 
-    .status {
-      padding: 14px;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      background: var(--panel2);
+    h1 {
+      margin: 0;
+      text-align: center;
+      font-size: 25px;
+      line-height: 1.4;
+    }
+
+    .subtitle {
+      margin: 8px 0 28px;
+      text-align: center;
+      color: #aaa;
       font-size: 14px;
-      overflow-wrap: anywhere;
     }
 
-    #welcomeText {
-      color: var(--muted);
-      overflow-wrap: anywhere;
+    label {
+      display: block;
+      margin: 18px 0 8px;
+      font-size: 14px;
     }
 
-    .button {
-      display: inline-flex;
+    input {
+      width: 100%;
+      min-height: 48px;
+      padding: 13px;
+      border: 1px solid #484848;
+      border-radius: 10px;
+      background: #242424;
+      color: #fff;
+      font-size: 16px;
+    }
+
+    input:focus {
+      outline: 2px solid #ed1024;
+      border-color: transparent;
+    }
+
+    button,
+    .link-button {
+      display: flex;
       align-items: center;
       justify-content: center;
-      min-height: 44px;
-      margin: 5px 5px 5px 0;
-      padding: 11px 18px;
-      border: 0;
+      width: 100%;
+      min-height: 48px;
+      margin-top: 22px;
+      padding: 13px;
+      border: none;
       border-radius: 10px;
-      background: linear-gradient(135deg, var(--red), var(--red-dark));
-      color: white;
-      font-size: 14px;
-      font-weight: 700;
+      background: #ed1024;
+      color: #fff;
+      font-size: 15px;
+      font-weight: bold;
+      text-align: center;
       text-decoration: none;
       cursor: pointer;
     }
 
-    .button:active {
-      transform: scale(0.98);
+    button:disabled {
+      opacity: 0.6;
+      cursor: wait;
     }
 
-    .button.secondary {
-      background: #303741;
+    .secondary {
+      margin-top: 12px;
+      border: 1px solid #555;
+      background: #222;
     }
 
-    .table-wrap {
-      width: 100%;
-      max-width: 100%;
-      overflow-x: auto;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      background: #171c23;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    table {
-      width: 100%;
-      min-width: 420px;
-      border-collapse: collapse;
+    #pesan {
+      margin: 18px 0 0;
       font-size: 14px;
-    }
-
-    th,
-    td {
-      padding: 12px;
-      border-bottom: 1px solid #303640;
-      text-align: left;
-      vertical-align: top;
+      line-height: 1.6;
+      text-align: center;
       overflow-wrap: anywhere;
     }
 
-    th {
-      background: #222832;
-      color: #ff6573;
+    .forgot {
+      display: block;
+      margin-top: 16px;
+      color: #ff7b87;
+      text-align: right;
+      font-size: 13px;
+      text-decoration: none;
+    }
+
+    .note {
+      margin-top: 22px;
+      color: #aaa;
       font-size: 12px;
-    }
-
-    tbody tr:last-child td {
-      border-bottom: 0;
-    }
-
-    tbody tr:hover {
-      background: #202630;
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    footer {
-      padding: 22px 10px;
-      color: var(--muted);
+      line-height: 1.6;
       text-align: center;
-      font-size: 12px;
     }
+  </style></head><body>
+  <main class="card">
+    <div class="logo">🏸</div><h1>BANCONG GASSMINTON</h1>
+<p class="subtitle">LOGIN ANGGOTA & ADMIN</p>
 
-    @media (min-width: 700px) {
-      body {
-        padding: 28px;
-      }
+<form id="formLogin">
+  <label for="email">Email</label>
+  <input
+    id="email"
+    type="email"
+    autocomplete="username"
+    placeholder="Masukkan email"
+    required
+  >
 
-      #portal {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 16px;
-        align-items: start;
-      }
+  <label for="password">Kata sandi</label>
+  <input
+    id="password"
+    type="password"
+    autocomplete="current-password"
+    placeholder="Masukkan kata sandi"
+    required
+  >
 
-      #portal > .card {
-        margin-bottom: 0;
-      }
+  <button id="tombolLogin" type="submit">
+    MASUK MINAHI
+  </button>
+</form>
 
-      #portal > .card:first-child {
-        grid-column: 1 / -1;
-      }
-    }
+<a class="forgot" href="lupa-password.html">
+  Lupa kata sandi?
+</a>
 
-    @media (max-width: 380px) {
-      body {
-        padding: 10px;
-      }
+<p id="pesan" role="status" aria-live="polite"></p>
 
-      header,
-      .card {
-        padding: 16px;
-        border-radius: 14px;
-      }
+<a href="index.html" class="link-button secondary">
+  ← Kembali ke halaman utama
+</a>
 
-      h2 {
-        font-size: 16px;
-      }
-    }
-  </style>
-</head>
+<p class="note">
+  Gunakan akun yang sudah terdaftar di Bancong Gassminton.
+</p>
 
-<body>
-  <main class="container">
-
-    <header>
-      <h1>🏸 BANCONG GASSMINTON</h1>
-      <p>Portal Anggota Dusun 2 Datar Bancong</p>
-    </header>
-
-    <section id="statusBox" class="card">
-      <div id="statusText" class="status">
-        Memeriksa login...
-      </div>
-    </section>
-
-    <section id="loginBox" class="card hidden">
-      <h2>Login Anggota</h2>
-      <p>Silakan login terlebih dahulu untuk membuka portal anggota.</p>
-      <a href="anggota-login.html" class="button">Login Sekarang</a>
-    </section>
-
-    <div id="portal" class="hidden">
-
-      <section class="card">
-        <h2>Selamat Datang!</h2>
-        <p id="welcomeText">Anggota Bancong Gassminton</p>
-        <button id="logoutBtn" class="button">Keluar</button>
-      </section>
-
-      <section class="card">
-        <h2>Daftar Anggota</h2>
-        <div id="membersBox" class="status">Memuat daftar anggota...</div>
-      </section>
-
-      <section class="card">
-        <h2>Jadwal Kegiatan</h2>
-        <div id="schedulesBox" class="status">Memuat jadwal...</div>
-      </section>
-
-      <section class="card">
-        <h2>Turnamen</h2>
-        <div id="tournamentsBox" class="status">Memuat turnamen...</div>
-      </section>
-
-      <section class="card">
-        <h2>Pertandingan</h2>
-        <div id="matchesBox" class="status">Memuat pertandingan...</div>
-      </section>
-
-      <section class="card">
-        <h2>Kas Organisasi</h2>
-        <div id="cashBox" class="status">Memuat informasi kas...</div>
-      </section>
-
-      <section class="card">
-        <h2>Arisan Anggota</h2>
-        <div id="arisanBox" class="status">Memuat informasi arisan...</div>
-      </section>
-
-    </div>
-
-    <footer>Bancong Gassminton — Datar Bancong</footer>
-  </main>
-
-  <script>
+  </main>  <script>
     const SUPABASE_URL =
       "https://vyrypjxuhiywvkeiewpd.supabase.co";
 
     const SUPABASE_KEY =
       "sb_publishable_pRU3ZWYBomp_vQoUaI6Tzg_TbxqrYby";
 
-    const statusText = document.getElementById("statusText");
-    const statusBox = document.getElementById("statusBox");
-    const loginBox = document.getElementById("loginBox");
-    const portal = document.getElementById("portal");
+    const form = document.getElementById("formLogin");
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+    const tombol = document.getElementById("tombolLogin");
+    const pesan = document.getElementById("pesan");
 
-    let db;
+    let db = null;
 
-    function withTimeout(promise, seconds = 12) {
-      return Promise.race([
-        promise,
-        new Promise((_, reject) => {
-          setTimeout(() => {
-            reject(new Error("Koneksi terlalu lama. Periksa internet."));
-          }, seconds * 1000);
-        })
-      ]);
+    function tampilkanPesan(teks, warna = "#fff") {
+      pesan.textContent = teks;
+      pesan.style.color = warna;
     }
 
-    function setStatus(message) {
-      statusText.textContent = message;
-    }
-
-    function showLogin(message) {
-      statusBox.classList.remove("hidden");
-      loginBox.classList.remove("hidden");
-      portal.classList.add("hidden");
-      setStatus(message);
-    }
-
-    function showPortal() {
-      statusBox.classList.add("hidden");
-      loginBox.classList.add("hidden");
-      portal.classList.remove("hidden");
-    }
-
-    function formatDate(value) {
-      if (!value) return "-";
-
-      const date = new Date(value);
-
-      if (Number.isNaN(date.getTime())) {
-        return String(value);
-      }
-
-      return date.toLocaleDateString("id-ID", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric"
-      });
-    }
-
-    function renderTable(elementId, columns, rows) {
-      const box = document.getElementById(elementId);
-
-      if (!rows || rows.length === 0) {
-        box.textContent = "Belum ada data.";
-        return;
-      }
-
-      const table = document.createElement("table");
-      const thead = document.createElement("thead");
-      const headerRow = document.createElement("tr");
-
-      columns.forEach(column => {
-        const th = document.createElement("th");
-        th.textContent = column.label;
-        headerRow.appendChild(th);
-      });
-
-      thead.appendChild(headerRow);
-      table.appendChild(thead);
-
-      const tbody = document.createElement("tbody");
-
-      rows.forEach(row => {
-        const tr = document.createElement("tr");
-
-        columns.forEach(column => {
-          const td = document.createElement("td");
-          const value = row[column.key];
-
-          td.textContent = column.date
-            ? formatDate(value)
-            : String(value ?? "-");
-
-          tr.appendChild(td);
-        });
-
-        tbody.appendChild(tr);
-      });
-
-      table.appendChild(tbody);
-
-      const wrap = document.createElement("div");
-      wrap.className = "table-wrap";
-      wrap.appendChild(table);
-
-      box.replaceChildren(wrap);
-    }
-
-    async function loadMembers() {
-      const box = document.getElementById("membersBox");
-
-      try {
-        const result = await withTimeout(
-          db.from("members")
-            .select("nama_anggota,dusun,tanggal_pendaftaran")
-            .order("nama_anggota"),
-          12
+    function buatClient() {
+      if (!window.supabase || !window.supabase.createClient) {
+        throw new Error(
+          "Layanan login belum termuat. Periksa koneksi internet."
         );
-
-        if (result.error) throw result.error;
-
-        renderTable("membersBox", [
-          { key: "nama_anggota", label: "Nama Anggota" },
-          { key: "dusun", label: "Dusun" },
-          {
-            key: "tanggal_pendaftaran",
-            label: "Tanggal Daftar",
-            date: true
-          }
-        ], result.data);
-
-      } catch (error) {
-        box.textContent =
-          "Gagal memuat anggota: " +
-          (error.message || "Periksa izin akses Supabase.");
       }
-    }
 
-    async function loadTable(tableName, elementId, columns) {
-      const box = document.getElementById(elementId);
-
-      try {
-        const result = await withTimeout(
-          db.from(tableName).select("*").limit(100),
-          12
-        );
-
-        if (result.error) throw result.error;
-
-        renderTable(elementId, columns, result.data);
-
-      } catch (error) {
-        box.textContent =
-          "Data belum dapat dimuat: " +
-          (error.message || "Periksa izin akses tabel.");
-      }
-    }
-
-    async function init() {
-      try {
-        if (!window.supabase || !window.supabase.createClient) {
-          throw new Error(
-            "Pustaka Supabase gagal dimuat. Periksa koneksi internet."
-          );
-        }
-
-        setStatus("Menghubungkan ke server...");
-
+      if (!db) {
         db = window.supabase.createClient(
           SUPABASE_URL,
           SUPABASE_KEY
         );
-
-        const sessionResult = await withTimeout(
-          db.auth.getSession(),
-          12
-        );
-
-        if (sessionResult.error) throw sessionResult.error;
-
-        const session = sessionResult.data.session;
-
-        if (!session) {
-          showLogin("Kamu belum login. Silakan login terlebih dahulu.");
-          return;
-        }
-
-        setStatus("Memeriksa akun...");
-
-        const userResult = await withTimeout(
-          db.auth.getUser(),
-          12
-        );
-
-        if (userResult.error) throw userResult.error;
-
-        const user = userResult.data.user;
-
-        if (!user) {
-          showLogin("Sesi login tidak ditemukan. Silakan login kembali.");
-          return;
-        }
-
-        if (user.app_metadata?.role === "admin") {
-          window.location.href = "dashboard.html";
-          return;
-        }
-
-        document.getElementById("welcomeText").textContent =
-          "Login sebagai: " + (user.email || "Anggota");
-
-        showPortal();
-
-        await Promise.all([
-          loadMembers(),
-
-          loadTable("schedules", "schedulesBox", [
-            { key: "tanggal", label: "Tanggal", date: true },
-            { key: "kegiatan", label: "Kegiatan" },
-            { key: "keterangan", label: "Keterangan" }
-          ]),
-
-          loadTable("tournaments", "tournamentsBox", [
-            { key: "nama", label: "Nama Turnamen" },
-            { key: "tanggal", label: "Tanggal", date: true },
-            { key: "status", label: "Status" }
-          ]),
-
-          loadTable("matches", "matchesBox", [
-            { key: "tanggal", label: "Tanggal", date: true },
-            { key: "pemain1", label: "Pemain 1" },
-            { key: "pemain2", label: "Pemain 2" },
-            { key: "status", label: "Status" }
-          ]),
-
-          loadTable("cash_transactions", "cashBox", [
-            { key: "tanggal", label: "Tanggal", date: true },
-            { key: "jenis", label: "Jenis" },
-            { key: "jumlah", label: "Jumlah" },
-            { key: "keterangan", label: "Keterangan" }
-          ]),
-
-          loadTable("arisan_payments", "arisanBox", [
-            { key: "tanggal", label: "Tanggal", date: true },
-            { key: "nama_anggota", label: "Nama Anggota" },
-            { key: "jumlah", label: "Jumlah" },
-            { key: "status", label: "Status" }
-          ])
-        ]);
-
-      } catch (error) {
-        console.error("Kesalahan portal:", error);
-
-        showLogin(
-          "Tidak dapat membuka portal: " +
-          (error.message || "Terjadi kesalahan.")
-        );
       }
+
+      return db;
     }
 
-    document.getElementById("logoutBtn").addEventListener(
-      "click",
-      async function () {
-        try {
-          if (db) {
-            await db.auth.signOut();
-          }
+    form.addEventListener("submit", async function(event) {
+      event.preventDefault();
 
-          window.location.href = "anggota-login.html";
+      tombol.disabled = true;
+      tombol.textContent = "DIHI CEK KUDAI...";
+      tampilkanPesan("Sedang memeriksa akun...", "#ffd166");
 
-        } catch (error) {
-          alert("Gagal keluar: " + error.message);
+      try {
+        const client = buatClient();
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
+
+        const { data, error } =
+          await client.auth.signInWithPassword({
+            email: email,
+            password: password
+          });
+
+        if (error) {
+          throw error;
         }
-      }
-    );
 
-    init();
-  </script>
-</body>
+        if (!data.user) {
+          throw new Error("Akun tidak ditemukan.");
+        }
+
+        const user = data.user;
+        const role = user.app_metadata?.role;
+
+        tampilkanPesan(
+          "Login berhasil. Mengarahkan ke halaman...",
+          "#42d392"
+        );
+
+        if (role === "admin") {
+          window.location.replace("dashboard.html");
+        } else {
+          window.location.replace("index.html");
+        }
+
+      } catch (error) {
+        console.error("Login gagal:", error);
+
+        let pesanError = error.message || "Login gagal.";
+
+        if (
+          pesanError.toLowerCase().includes("invalid login credentials")
+        ) {
+          pesanError =
+            "Email atau kata sandi salah. Periksa kembali, lalu coba lagi.";
+        }
+
+        tampilkanPesan(pesanError, "#ff6675");
+
+        tombol.disabled = false;
+        tombol.textContent = "MASUK KUDAI";
+      }
+    });
+  </script></body>
 </html>
